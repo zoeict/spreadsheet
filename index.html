@@ -1,0 +1,3668 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Excel LAB</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Noto+Sans+TC:wght@400;500;700;900&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet" />
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <style>
+/* ==========================================================================
+   WARM OBSIDIAN LEDGER · BURNISHED AMBER & COPPER ATELIER
+   STRICT PALETTE DISCIPLINE: ZERO PINK, ZERO GREEN, ZERO BLUE/CYAN
+   ========================================================================== */
+:root {
+  --bg-void: #100d0a;
+  --bg-base: #18130f;
+  --bg-raised: #221b15;
+  --bg-elevated: #2b221a;
+  --bg-inset: #0b0806;
+
+  --ink-primary: #f5efe6;
+  --ink-secondary: #d4c4b0;
+  --ink-muted: #9a8772;
+  --ink-dim: #6e5d4b;
+
+  --amber-500: #f59e0b;
+  --amber-400: #fbbf24;
+  --amber-300: #fcd34d;
+  --amber-200: #fde68a;
+  --amber-dim: rgba(245, 158, 11, 0.14);
+  --amber-border: rgba(245, 158, 11, 0.36);
+
+  --copper-600: #c2410c;
+  --copper-500: #ea580c;
+  --copper-400: #fb923c;
+  --copper-300: #fdba74;
+  --copper-dim: rgba(234, 88, 12, 0.15);
+
+  --rust-500: #dc2626;
+  --rust-400: #f87171;
+  --rust-dim: rgba(220, 38, 38, 0.15);
+
+  --line-subtle: rgba(245, 222, 179, 0.09);
+  --line-strong: rgba(245, 222, 179, 0.19);
+
+  --font-display: 'Space Grotesk', 'Noto Sans TC', system-ui, sans-serif;
+  --font-sans: 'Noto Sans TC', 'Space Grotesk', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  min-height: 100dvh;
+  background-color: var(--bg-void);
+  color: var(--ink-primary);
+  font-family: var(--font-sans);
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+body {
+  background-image:
+    linear-gradient(to right, rgba(245, 158, 11, 0.038) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(245, 158, 11, 0.038) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: var(--bg-inset); }
+::-webkit-scrollbar-thumb { background: #3b2e22; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: #5a4634; }
+
+.mono { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+.hidden { display: none !important; }
+
+/* ---------------- TOP BAR ---------------- */
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 60;
+  background: rgba(16, 13, 10, 0.92);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--line-strong);
+}
+
+.topbar-inner {
+  max-width: 1380px;
+  margin: 0 auto;
+  padding: 0 20px;
+  height: 62px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  cursor: pointer;
+  user-select: none;
+  flex-shrink: 0;
+}
+
+.brand-mark {
+  width: 36px;
+  height: 36px;
+  border-radius: 9px;
+  background: linear-gradient(135deg, var(--amber-400), var(--copper-500));
+  color: #140d07;
+  display: grid;
+  place-items: center;
+  font-family: var(--font-mono);
+  font-weight: 800;
+  font-size: 14px;
+  letter-spacing: -0.04em;
+  box-shadow: 0 0 0 1px rgba(253, 230, 138, 0.4), 0 6px 18px rgba(234, 88, 12, 0.28);
+}
+
+.brand-text { display: flex; flex-direction: column; line-height: 1.15; }
+.brand-title { font-family: var(--font-display); font-weight: 700; font-size: 16px; letter-spacing: 0.01em; color: var(--ink-primary); }
+.brand-sub { font-size: 11px; color: var(--amber-400); font-family: var(--font-mono); letter-spacing: 0.04em; }
+
+.nav-tabs {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.nav-tabs::-webkit-scrollbar { display: none; }
+
+.nav-btn {
+  appearance: none;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--ink-secondary);
+  font-family: var(--font-sans);
+  font-size: 13.5px;
+  font-weight: 500;
+  padding: 7px 13px;
+  border-radius: 8px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.16s, color 0.16s, border-color 0.16s;
+}
+.nav-btn:hover { background: var(--bg-raised); color: var(--ink-primary); }
+.nav-btn.active {
+  background: var(--amber-dim);
+  color: var(--amber-300);
+  border-color: var(--amber-border);
+  font-weight: 700;
+}
+
+.topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.xp-pill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 11px;
+  border-radius: 999px;
+  background: var(--bg-raised);
+  border: 1px solid var(--line-strong);
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  color: var(--amber-300);
+  font-weight: 600;
+}
+
+.user-pill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  background: var(--bg-raised);
+  border: 1px solid var(--amber-border);
+  color: var(--ink-primary);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.user-pill:hover { background: var(--bg-elevated); }
+.user-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--amber-400); }
+.user-dot.offline { background: var(--ink-dim); }
+
+/* ---------------- MAIN SHELL ---------------- */
+.app-shell {
+  max-width: 1380px;
+  margin: 0 auto;
+  padding: 24px 20px 56px;
+}
+
+.view { display: none; }
+.view.active { display: block; animation: fadeIn 0.18s ease-out; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+
+/* ---------------- BUTTONS ---------------- */
+.btn {
+  appearance: none;
+  border: 1px solid var(--line-strong);
+  background: var(--bg-raised);
+  color: var(--ink-primary);
+  font-family: var(--font-sans);
+  font-size: 13.5px;
+  font-weight: 600;
+  padding: 9px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  transition: transform 0.12s, background 0.15s, border-color 0.15s;
+}
+.btn:hover { background: var(--bg-elevated); border-color: var(--amber-border); }
+.btn:active { transform: translateY(1px); }
+.btn:disabled { opacity: 0.48; cursor: not-allowed; }
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--amber-400), var(--copper-500));
+  color: #140c06;
+  border-color: rgba(253, 230, 138, 0.45);
+  font-weight: 700;
+}
+.btn-primary:hover {
+  background: linear-gradient(135deg, var(--amber-300), var(--copper-400));
+  border-color: var(--amber-200);
+}
+
+.btn-copper {
+  background: var(--copper-dim);
+  color: var(--copper-300);
+  border-color: rgba(234, 88, 12, 0.42);
+}
+.btn-copper:hover { background: rgba(234, 88, 12, 0.24); }
+
+.btn-ghost {
+  background: transparent;
+  border-color: var(--line-subtle);
+  color: var(--ink-secondary);
+}
+.btn-ghost:hover { background: var(--bg-raised); color: var(--ink-primary); }
+
+.btn-sm { padding: 6px 11px; font-size: 12.5px; }
+
+/* ---------------- HOME VIEW ---------------- */
+.hero {
+  display: grid;
+  grid-template-columns: 1.12fr 0.88fr;
+  gap: 28px;
+  align-items: center;
+  padding: 28px 30px;
+  background: linear-gradient(145deg, rgba(34, 27, 21, 0.94), rgba(18, 13, 9, 0.96));
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-lg);
+  position: relative;
+  overflow: hidden;
+}
+.hero::before {
+  content: '';
+  position: absolute;
+  top: -80px;
+  right: -60px;
+  width: 340px;
+  height: 340px;
+  background: radial-gradient(circle, rgba(245, 158, 11, 0.16), transparent 68%);
+  pointer-events: none;
+}
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--amber-400);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+.eyebrow::before {
+  content: '';
+  width: 18px;
+  height: 2px;
+  background: var(--amber-400);
+}
+
+.hero h1 {
+  margin: 0 0 12px;
+  font-family: var(--font-display);
+  font-size: clamp(28px, 3.4vw, 40px);
+  font-weight: 800;
+  line-height: 1.16;
+  letter-spacing: -0.02em;
+}
+.hero h1 span { color: var(--amber-400); }
+
+.hero-desc {
+  margin: 0 0 22px;
+  color: var(--ink-secondary);
+  font-size: 15px;
+  max-width: 56ch;
+}
+
+.hero-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 22px; }
+
+.stat-strip {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  padding-top: 18px;
+  border-top: 1px solid var(--line-subtle);
+}
+.stat-box {
+  background: rgba(11, 8, 6, 0.55);
+  border: 1px solid var(--line-subtle);
+  border-radius: 9px;
+  padding: 10px 12px;
+}
+.stat-num { font-family: var(--font-mono); font-size: 20px; font-weight: 700; color: var(--amber-300); }
+.stat-lbl { font-size: 11.5px; color: var(--ink-muted); margin-top: 2px; }
+
+/* Hero Live Mini Preview Card */
+.hero-ledger {
+  background: var(--bg-inset);
+  border: 1px solid var(--amber-border);
+  border-radius: 12px;
+  padding: 14px;
+  box-shadow: 0 18px 42px rgba(0, 0, 0, 0.45);
+}
+.hero-ledger-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 10px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--ink-muted);
+}
+.hero-fx {
+  background: var(--bg-base);
+  border: 1px solid var(--line-strong);
+  border-radius: 7px;
+  padding: 7px 10px;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.hero-fx-tag {
+  background: var(--amber-dim);
+  color: var(--amber-300);
+  padding: 2px 7px;
+  border-radius: 4px;
+  font-weight: 700;
+  font-size: 11.5px;
+}
+.mini-tbl {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+}
+.mini-tbl th, .mini-tbl td {
+  border: 1px solid var(--line-subtle);
+  padding: 6px 8px;
+  text-align: left;
+}
+.mini-tbl th {
+  background: var(--bg-raised);
+  color: var(--ink-muted);
+  font-weight: 600;
+  text-align: center;
+}
+.mini-tbl td.num { text-align: right; }
+.mini-tbl td.lock { background: rgba(234, 88, 12, 0.18); color: var(--copper-300); font-weight: 700; border-color: rgba(234, 88, 12, 0.5); }
+.mini-tbl td.active-cell { background: var(--amber-dim); color: var(--amber-200); font-weight: 700; border: 1.5px solid var(--amber-400); }
+
+/* Syllabus Roadmap Grid */
+.section-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 30px 0 14px;
+}
+.section-head h2 { margin: 0; font-size: 20px; font-weight: 700; letter-spacing: -0.01em; }
+.section-head p { margin: 0; font-size: 13px; color: var(--ink-muted); }
+
+.chapter-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+}
+.ch-card {
+  background: var(--bg-base);
+  border: 1px solid var(--line-strong);
+  border-radius: 12px;
+  padding: 16px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  transition: transform 0.15s, border-color 0.15s, background 0.15s;
+}
+.ch-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--amber-border);
+  background: var(--bg-raised);
+}
+.ch-top { display: flex; align-items: center; justify-content: space-between; }
+.ch-code {
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 5px;
+  background: var(--amber-dim);
+  color: var(--amber-300);
+  border: 1px solid var(--amber-border);
+}
+.ch-prog-txt { font-family: var(--font-mono); font-size: 12px; color: var(--ink-muted); }
+.ch-title { font-size: 14.5px; font-weight: 700; color: var(--ink-primary); line-height: 1.35; }
+.ch-ref { font-size: 12px; color: var(--ink-muted); }
+.prog-track {
+  height: 5px;
+  background: var(--bg-inset);
+  border-radius: 99px;
+  overflow: hidden;
+  margin-top: auto;
+}
+.prog-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--copper-500), var(--amber-400));
+  border-radius: 99px;
+  transition: width 0.25s ease;
+}
+
+/* ---------------- WORKBENCH LAYOUT (QUEST & DSE) ---------------- */
+.wb-layout {
+  display: grid;
+  grid-template-columns: 300px minmax(0, 1fr);
+  gap: 18px;
+  align-items: start;
+}
+
+.rail {
+  background: var(--bg-base);
+  border: 1px solid var(--line-strong);
+  border-radius: 12px;
+  overflow: hidden;
+  max-height: calc(100dvh - 106px);
+  display: flex;
+  flex-direction: column;
+  position: sticky;
+  top: 78px;
+}
+.rail-head {
+  padding: 13px 15px;
+  border-bottom: 1px solid var(--line-subtle);
+  background: var(--bg-raised);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.rail-head h3 { margin: 0; font-size: 14px; font-weight: 700; }
+.rail-body { overflow-y: auto; padding: 8px; flex: 1; }
+
+.ch-group { margin-bottom: 8px; }
+.ch-group-btn {
+  width: 100%;
+  text-align: left;
+  background: var(--bg-raised);
+  border: 1px solid var(--line-subtle);
+  color: var(--ink-primary);
+  padding: 9px 11px;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 700;
+}
+.ch-group-btn:hover { border-color: var(--amber-border); }
+.ch-group-items { padding: 5px 0 2px 4px; display: flex; flex-direction: column; gap: 3px; }
+
+.lv-item {
+  width: 100%;
+  text-align: left;
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--ink-secondary);
+  padding: 8px 10px;
+  border-radius: 7px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12.5px;
+  transition: background 0.14s, color 0.14s;
+}
+.lv-item:hover { background: var(--bg-raised); color: var(--ink-primary); }
+.lv-item.active {
+  background: var(--amber-dim);
+  border-color: var(--amber-border);
+  color: var(--amber-200);
+  font-weight: 700;
+}
+.lv-status {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 1px solid var(--line-strong);
+  display: grid;
+  place-items: center;
+  font-size: 10px;
+  flex-shrink: 0;
+  font-family: var(--font-mono);
+}
+.lv-status.done {
+  background: var(--amber-400);
+  color: #140c06;
+  border-color: var(--amber-300);
+  font-weight: 800;
+}
+.lv-title-txt { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.diff-tag {
+  font-size: 10.5px;
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-family: var(--font-mono);
+  flex-shrink: 0;
+}
+.diff-easy { background: rgba(245, 222, 179, 0.12); color: var(--ink-secondary); }
+.diff-medium { background: var(--amber-dim); color: var(--amber-300); }
+.diff-hard { background: var(--copper-dim); color: var(--copper-300); }
+
+/* Main Stage Card */
+.stage-card {
+  background: var(--bg-base);
+  border: 1px solid var(--line-strong);
+  border-radius: 12px;
+  padding: 20px 22px;
+}
+
+.notes-box {
+  background: rgba(245, 158, 11, 0.06);
+  border: 1px solid var(--amber-border);
+  border-radius: 10px;
+  padding: 12px 15px;
+  margin-bottom: 16px;
+}
+.notes-summary {
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--amber-300);
+  list-style: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.notes-list {
+  margin: 10px 0 0;
+  padding-left: 18px;
+  font-size: 13px;
+  color: var(--ink-secondary);
+}
+.notes-list li { margin-bottom: 4px; }
+
+.q-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.badge {
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  font-weight: 700;
+  padding: 3px 9px;
+  border-radius: 5px;
+  background: var(--bg-raised);
+  border: 1px solid var(--line-strong);
+  color: var(--ink-secondary);
+}
+.badge-amber { background: var(--amber-dim); border-color: var(--amber-border); color: var(--amber-300); }
+.badge-copper { background: var(--copper-dim); border-color: rgba(234, 88, 12, 0.42); color: var(--copper-300); }
+
+.q-title { margin: 0 0 8px; font-size: 20px; font-weight: 700; line-height: 1.3; }
+.q-prompt { margin: 0 0 16px; font-size: 14.5px; color: var(--ink-secondary); line-height: 1.6; }
+
+/* ---------------- INTERACTIVE EXCEL GRID & FORMULA BAR ---------------- */
+.xl-wrap {
+  background: var(--bg-inset);
+  border: 1px solid var(--line-strong);
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 14px;
+}
+
+.xl-fbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  background: var(--bg-raised);
+  border-bottom: 1px solid var(--line-strong);
+  flex-wrap: wrap;
+}
+.xl-cell-box {
+  min-width: 54px;
+  text-align: center;
+  padding: 6px 8px;
+  background: var(--bg-inset);
+  border: 1px solid var(--amber-border);
+  border-radius: 6px;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--amber-300);
+}
+.xl-fx-lbl {
+  font-family: var(--font-mono);
+  font-style: italic;
+  font-weight: 700;
+  color: var(--copper-400);
+  font-size: 14px;
+  user-select: none;
+}
+.xl-input-wrap {
+  flex: 1;
+  min-width: 200px;
+  position: relative;
+}
+.xl-input {
+  width: 100%;
+  background: var(--bg-inset);
+  border: 1px solid var(--line-strong);
+  border-radius: 6px;
+  padding: 7px 11px;
+  color: var(--ink-primary);
+  font-family: var(--font-mono);
+  font-size: 14px;
+  outline: none;
+}
+.xl-input:focus { border-color: var(--amber-400); box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.22); }
+
+.xl-preview-strip {
+  padding: 5px 12px;
+  background: rgba(16, 13, 10, 0.85);
+  border-bottom: 1px solid var(--line-subtle);
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  min-height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.xl-tok-eq { color: var(--ink-muted); font-weight: 700; }
+.xl-tok-fn { color: var(--copper-300); font-weight: 700; }
+.xl-tok-str { color: var(--amber-200); }
+.xl-tok-ref { font-weight: 700; }
+
+.xl-scroll { overflow-x: auto; padding: 10px; }
+
+.xl-table {
+  border-collapse: collapse;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  user-select: none;
+  background: #14100c;
+}
+.xl-table th, .xl-table td {
+  border: 1px solid rgba(245, 222, 179, 0.14);
+  padding: 6px 9px;
+  min-width: 64px;
+  height: 31px;
+  position: relative;
+}
+.xl-table th {
+  background: #201912;
+  color: var(--ink-muted);
+  font-weight: 600;
+  text-align: center;
+  font-size: 11.5px;
+}
+.xl-table th.row-hdr { min-width: 34px; width: 34px; }
+.xl-table td {
+  color: var(--ink-primary);
+  cursor: cell;
+  white-space: nowrap;
+}
+.xl-table td.st-hdr {
+  background: #271e16;
+  color: var(--amber-200);
+  font-weight: 700;
+  font-family: var(--font-sans);
+}
+.xl-table td.st-tot {
+  background: rgba(245, 158, 11, 0.08);
+  font-weight: 700;
+}
+.xl-table td.st-inp {
+  background: rgba(234, 88, 12, 0.10);
+  color: var(--copper-300);
+}
+.xl-table td.is-num { text-align: right; }
+.xl-table td.is-err { color: var(--rust-400); font-weight: 700; background: var(--rust-dim); }
+.xl-table td.is-target {
+  box-shadow: inset 0 0 0 1.5px rgba(245, 158, 11, 0.55);
+  background: rgba(245, 158, 11, 0.08);
+}
+.xl-table td.is-selected {
+  box-shadow: inset 0 0 0 2px var(--amber-400);
+  background: rgba(245, 158, 11, 0.16);
+}
+.xl-table td.is-fill-preview {
+  box-shadow: inset 0 0 0 1.5px dashed var(--copper-400);
+  background: rgba(234, 88, 12, 0.16);
+}
+.xl-table td.is-src {
+  box-shadow: inset 0 0 0 2px var(--copper-400);
+  background: rgba(234, 88, 12, 0.18);
+}
+.xl-table td.is-dst {
+  box-shadow: inset 0 0 0 2px dashed var(--amber-400);
+  background: rgba(245, 158, 11, 0.15);
+}
+
+.xl-fill-handle {
+  position: absolute;
+  right: -4px;
+  bottom: -4px;
+  width: 11px;
+  height: 11px;
+  background: var(--amber-400);
+  border: 1.5px solid #140c06;
+  border-radius: 2px;
+  cursor: crosshair;
+  z-index: 5;
+}
+.xl-fill-handle.armed {
+  background: var(--copper-400);
+  transform: scale(1.3);
+  box-shadow: 0 0 0 3px rgba(234, 88, 12, 0.35);
+}
+
+/* Touch Keypad */
+.xl-keypad {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  padding: 8px 10px;
+  background: var(--bg-base);
+  border-top: 1px solid var(--line-subtle);
+}
+.kp-btn {
+  appearance: none;
+  background: var(--bg-raised);
+  border: 1px solid var(--line-strong);
+  color: var(--ink-primary);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 600;
+  padding: 5px 9px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.kp-btn:hover { border-color: var(--amber-border); color: var(--amber-300); }
+.kp-btn.kp-accent { background: var(--amber-dim); border-color: var(--amber-border); color: var(--amber-300); }
+
+/* MC Options */
+.mc-list { display: flex; flex-direction: column; gap: 9px; margin-bottom: 16px; }
+.mc-opt {
+  width: 100%;
+  text-align: left;
+  background: var(--bg-raised);
+  border: 1px solid var(--line-strong);
+  color: var(--ink-primary);
+  padding: 12px 15px;
+  border-radius: 9px;
+  cursor: pointer;
+  display: flex;
+  align-items: flex-start;
+  gap: 11px;
+  font-size: 14px;
+  transition: border-color 0.14s, background 0.14s;
+}
+.mc-opt:hover { border-color: var(--amber-border); background: var(--bg-elevated); }
+.mc-opt.selected {
+  border-color: var(--amber-400);
+  background: var(--amber-dim);
+  color: var(--amber-200);
+}
+.mc-letter {
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  background: var(--bg-inset);
+  border: 1px solid var(--line-strong);
+  display: grid;
+  place-items: center;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.mc-opt.selected .mc-letter { background: var(--amber-400); color: #140c06; border-color: var(--amber-300); }
+
+/* Predict Box */
+.predict-bar {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+.predict-input {
+  flex: 1;
+  min-width: 220px;
+  background: var(--bg-inset);
+  border: 1px solid var(--line-strong);
+  border-radius: 8px;
+  padding: 10px 13px;
+  color: var(--ink-primary);
+  font-family: var(--font-mono);
+  font-size: 15px;
+  outline: none;
+}
+.predict-input:focus { border-color: var(--amber-400); }
+
+/* Feedback Banner */
+.feedback {
+  margin-top: 14px;
+  padding: 13px 16px;
+  border-radius: 10px;
+  border: 1px solid var(--line-strong);
+  font-size: 13.5px;
+  line-height: 1.6;
+}
+.feedback.ok {
+  background: rgba(245, 158, 11, 0.13);
+  border-color: var(--amber-400);
+  color: var(--amber-200);
+}
+.feedback.err {
+  background: var(--rust-dim);
+  border-color: var(--rust-500);
+  color: #fecaca;
+}
+.feedback.info {
+  background: var(--bg-raised);
+  border-color: var(--amber-border);
+  color: var(--ink-secondary);
+}
+
+.action-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 14px;
+}
+.action-group { display: flex; flex-wrap: wrap; gap: 8px; }
+
+/* ---------------- VISUALIZER STUDIO (5 MODES) ---------------- */
+.viz-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+.viz-tab {
+  background: var(--bg-base);
+  border: 1px solid var(--line-strong);
+  color: var(--ink-secondary);
+  padding: 9px 14px;
+  border-radius: 9px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+}
+.viz-tab.active {
+  background: var(--amber-dim);
+  border-color: var(--amber-400);
+  color: var(--amber-300);
+}
+.viz-stage {
+  background: var(--bg-base);
+  border: 1px solid var(--line-strong);
+  border-radius: 12px;
+  padding: 22px;
+}
+.viz-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  align-items: start;
+}
+
+/* ---------------- SPRINT GAME ---------------- */
+.sprint-arena {
+  background: var(--bg-inset);
+  border: 1px solid var(--amber-border);
+  border-radius: 14px;
+  padding: 16px;
+  position: relative;
+}
+.sprint-hud {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--line-subtle);
+  margin-bottom: 14px;
+}
+.sprint-lanes {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  height: 360px;
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(180deg, rgba(24, 19, 15, 0.9), rgba(11, 8, 6, 0.96));
+  border: 1px solid var(--line-subtle);
+  border-radius: 10px;
+  padding: 10px;
+}
+.sprint-lane {
+  border-right: 1px dashed var(--line-subtle);
+  position: relative;
+  height: 100%;
+}
+.sprint-lane:last-child { border-right: none; }
+.sprint-card {
+  position: absolute;
+  left: 6px;
+  right: 6px;
+  background: var(--bg-raised);
+  border: 1.5px solid var(--amber-border);
+  border-radius: 9px;
+  padding: 9px 10px;
+  font-size: 12.5px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.45);
+}
+.sprint-card.danger { border-color: var(--rust-400); background: rgba(220, 38, 38, 0.14); }
+.sprint-card pre {
+  margin: 4px 0 0;
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  color: var(--amber-200);
+  white-space: pre-wrap;
+}
+.sprint-input-row {
+  display: flex;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+/* ---------------- MODALS ---------------- */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 120;
+  background: rgba(8, 6, 4, 0.78);
+  backdrop-filter: blur(8px);
+  display: grid;
+  place-items: center;
+  padding: 18px;
+}
+.modal-card {
+  width: 100%;
+  max-width: 460px;
+  background: var(--bg-base);
+  border: 1px solid var(--amber-border);
+  border-radius: 14px;
+  padding: 24px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.6);
+}
+.modal-card h3 { margin: 0 0 8px; font-size: 19px; font-weight: 700; color: var(--amber-300); }
+.modal-card p { margin: 0 0 14px; font-size: 13.5px; color: var(--ink-secondary); }
+.field-lbl { display: block; font-size: 12px; color: var(--ink-muted); margin: 10px 0 4px; font-family: var(--font-mono); }
+.field-inp {
+  width: 100%;
+  background: var(--bg-inset);
+  border: 1px solid var(--line-strong);
+  border-radius: 8px;
+  padding: 9px 12px;
+  color: var(--ink-primary);
+  font-family: var(--font-mono);
+  font-size: 13px;
+}
+.field-inp:focus { outline: none; border-color: var(--amber-400); }
+
+/* ---------------- RESPONSIVE / IPADOS ---------------- */
+@media (max-width: 1024px) {
+  .hero { grid-template-columns: 1fr; }
+  .chapter-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .wb-layout { grid-template-columns: 1fr; }
+  .rail { position: static; max-height: 290px; }
+  .viz-grid-2 { grid-template-columns: 1fr; }
+}
+@media (max-width: 640px) {
+  .chapter-grid { grid-template-columns: 1fr; }
+  .stat-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .xl-input, .predict-input, .field-inp { font-size: 16px; } /* Prevent iPadOS/iOS zoom */
+}
+</style>
+</head>
+<body>
+
+  <!-- TOP NAVIGATION -->
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="brand" onclick="APP.onBrandClick()" title="回到首頁">
+        <div class="brand-mark">fx</div>
+        <div class="brand-text">
+          <span class="brand-title">ICT - Excel</span>
+          <span class="brand-sub">HKDSE 試算表實戰平台</span>
+        </div>
+      </div>
+
+      <nav class="nav-tabs" aria-label="主導覽列">
+        <button class="nav-btn active" data-view="home" onclick="APP.switchView('home')">首頁</button>
+        <button class="nav-btn" data-view="quest" onclick="APP.switchView('quest')">闖關練習</button>
+        <button class="nav-btn" data-view="dse" onclick="APP.switchView('dse')">DSE 試題</button>
+        <button class="nav-btn" data-view="viz" onclick="APP.switchView('viz')">動畫圖解</button>
+        <button class="nav-btn" data-view="sprint" onclick="APP.switchView('sprint')">遊戲快打</button>
+        <button class="nav-btn" data-view="sandbox" onclick="APP.switchView('sandbox')">自由試算表</button>
+      </nav>
+
+      <div class="topbar-right">
+        <div class="xp-pill"><span id="hdr-xp">0 XP</span><span style="color:var(--ink-dim)">|</span><span id="hdr-solved">0/60</span></div>
+        <button class="user-pill" id="user-pill" onclick="APP.openLoginModal()">
+          <span class="user-dot offline"></span><span>登入 Gmail</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="app-shell">
+
+    <!-- 1. HOME VIEW -->
+    <section id="view-home" class="view active">
+      <div class="hero">
+        <div>
+          <div class="eyebrow">HKDSE ICT 中文卷 · 必修單元試算表</div>
+          <h1>手寫公式、拖曳填滿，<br/><span>實戰掌握 Excel 試算表</span></h1>
+          <p class="hero-desc">
+            專為香港中學文憑試 ICT 中文卷設計。內置瀏覽器試算表公式引擎，支援點選儲存格插入參照、F4 鎖定 $ 符號與拖曳填滿控點；全站採用雲端答案庫自動批改，登入學校 Gmail 即可同步個人學習進度。
+          </p>
+          <div class="hero-actions">
+            <button class="btn btn-primary" onclick="APP.switchView('quest')">開始 8 課闖關練習</button>
+            <button class="btn btn-copper" onclick="APP.switchView('dse')">挑戰 DSE 卷一乙試題</button>
+            <button class="btn" onclick="APP.switchView('viz')">互動動畫圖解</button>
+          </div>
+          <div class="stat-strip">
+            <div class="stat-box"><div class="stat-num" id="stat-ch">0/48</div><div class="stat-lbl">章節闖關進度</div></div>
+            <div class="stat-box"><div class="stat-num" id="stat-dse">0/12</div><div class="stat-lbl">DSE 試題完成</div></div>
+            <div class="stat-box"><div class="stat-num" id="stat-xp">0</div><div class="stat-lbl">累積經驗值 XP</div></div>
+            <div class="stat-box"><div class="stat-num" id="stat-sprint">0</div><div class="stat-lbl">遊戲快打最高分</div></div>
+          </div>
+        </div>
+
+        <div class="hero-ledger" aria-label="試算表絕對參照實時示範">
+          <div class="hero-ledger-bar">
+            <span>實戰預覽 · 絕對參照與匯率換算</span>
+            <span style="color:var(--amber-400)">F4 鎖定 $D$1</span>
+          </div>
+          <div class="hero-fx">
+            <span class="hero-fx-tag">C2</span>
+            <span style="color:var(--copper-400);font-style:italic;font-weight:700">fx</span>
+            <span>=B2*<strong style="color:var(--copper-300)">$D$1</strong></span>
+          </div>
+          <table class="mini-tbl">
+            <thead><tr><th></th><th>A 貨品</th><th>B 美元</th><th>C 港元</th><th>D 匯率</th></tr></thead>
+            <tbody>
+              <tr><th>1</th><td>項目</td><td class="num">USD</td><td class="num">HKD</td><td class="num lock">7.8</td></tr>
+              <tr><th>2</th><td>滑鼠</td><td class="num">20</td><td class="num active-cell">156.0</td><td style="color:var(--ink-dim)">← $D$1</td></tr>
+              <tr><th>3</th><td>鍵盤</td><td class="num">55</td><td class="num">429.0</td><td style="color:var(--ink-dim)">=B3*$D$1</td></tr>
+              <tr><th>4</th><td>耳機</td><td class="num">40</td><td class="num">312.0</td><td style="color:var(--ink-dim)">=B4*$D$1</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="section-head">
+        <div>
+          <h2>八大單元學習路線圖（48 關）</h2>
+          <p>對應教育局 ICT 詞彙表與 HKDSE 必修試算表課程，由 $ 參照到樞紐分析表與錯誤診斷。</p>
+        </div>
+      </div>
+      <div class="chapter-grid" id="home-chapter-grid"></div>
+    </section>
+
+    <!-- 2. QUEST WORKBENCH -->
+    <section id="view-quest" class="view">
+      <div class="wb-layout">
+        <aside class="rail">
+          <div class="rail-head">
+            <h3>闖關章節目錄</h3>
+            <span class="mono" style="font-size:11.5px;color:var(--amber-400)">8 課 · 48 關</span>
+          </div>
+          <div class="rail-body" id="quest-rail-body"></div>
+        </aside>
+        <div class="stage-card" id="quest-stage"></div>
+      </div>
+    </section>
+
+    <!-- 3. DSE PAST PAPER WORKBENCH -->
+    <section id="view-dse" class="view">
+      <div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px">
+        <div>
+          <h2 style="margin:0;font-size:20px">HKDSE 卷一乙試算表實戰題庫（12 題）</h2>
+          <p style="margin:2px 0 0;font-size:13px;color:var(--ink-muted)">精選歷屆考點改編：絕對／混合參照、多層 IF、COUNTIF/SUMIF、VLOOKUP 精確及區間查表、RANK 與文字拆解。</p>
+        </div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap" id="dse-filter-bar"></div>
+      </div>
+      <div class="wb-layout">
+        <aside class="rail">
+          <div class="rail-head"><h3>DSE 試題清單</h3><span class="mono" style="font-size:11.5px;color:var(--amber-400)">12 題</span></div>
+          <div class="rail-body" id="dse-rail-body"></div>
+        </aside>
+        <div class="stage-card" id="dse-stage"></div>
+      </div>
+    </section>
+
+    <!-- 4. INTERACTIVE VISUALIZER STUDIO -->
+    <section id="view-viz" class="view">
+      <div class="section-head" style="margin-top:0">
+        <div>
+          <h2>試算表核心概念動畫圖解室</h2>
+          <p>五大互動模擬器，把抽像的 $ 鎖定、邏輯分支、查表掃描與樞紐分析表變成即時可視操作。</p>
+        </div>
+      </div>
+      <div class="viz-tabs">
+        <button class="viz-tab active" data-mode="ref" onclick="APP.setVizMode('ref')">1. $ 參照複製動畫</button>
+        <button class="viz-tab" data-mode="logic" onclick="APP.setVizMode('logic')">2. IF / AND / OR 邏輯樹</button>
+        <button class="viz-tab" data-mode="vlookup" onclick="APP.setVizMode('vlookup')">3. VLOOKUP 查表追蹤</button>
+        <button class="viz-tab" data-mode="cond" onclick="APP.setVizMode('cond')">4. COUNTIF / SUMIF 掃描</button>
+        <button class="viz-tab" data-mode="pivot" onclick="APP.setVizMode('pivot')">5. 樞紐分析表重組</button>
+      </div>
+      <div class="viz-stage" id="viz-stage"></div>
+    </section>
+
+    <!-- 5. EXCEL SPRINT ARCADE -->
+    <section id="view-sprint" class="view">
+      <div class="sprint-arena">
+        <div class="sprint-hud">
+          <div>
+            <h2 style="margin:0;font-size:19px">Excel 公式快打競技場</h2>
+            <div style="font-size:12.5px;color:var(--ink-muted)">趁題卡墜底前輸入正確公式或錯誤代碼，按 Enter 立即消除！</div>
+          </div>
+          <div style="display:flex;gap:14px;align-items:center;flex-wrap:wrap">
+            <div class="xp-pill">得分：<span id="sprint-score">0</span></div>
+            <div class="xp-pill">連擊：<span id="sprint-combo">x1</span></div>
+            <div class="xp-pill" style="color:var(--copper-300)">生命：<span id="sprint-lives">♦♦♦</span></div>
+            <div class="xp-pill">最高：<span id="sprint-best">0</span></div>
+          </div>
+        </div>
+
+        <div style="display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px;margin-bottom:12px">
+          <div style="display:flex;gap:6px;flex-wrap:wrap" id="sprint-topics"></div>
+          <div style="display:flex;gap:6px;align-items:center">
+            <button class="btn btn-sm spd-btn" onclick="APP.setSprintSpeed(0.75, this)">輕鬆</button>
+            <button class="btn btn-sm spd-btn btn-primary" onclick="APP.setSprintSpeed(1.0, this)">標準</button>
+            <button class="btn btn-sm spd-btn" onclick="APP.setSprintSpeed(1.4, this)">極速</button>
+            <button class="btn btn-primary btn-sm" onclick="APP.startSprint()">開始挑戰</button>
+            <button class="btn btn-ghost btn-sm" onclick="APP.stopSprint()">停止</button>
+          </div>
+        </div>
+
+        <div class="sprint-lanes">
+          <div class="sprint-lane" id="sprint-lane-0"></div>
+          <div class="sprint-lane" id="sprint-lane-1"></div>
+          <div class="sprint-lane" id="sprint-lane-2"></div>
+        </div>
+
+        <div class="sprint-input-row">
+          <input id="sprint-inp" class="predict-input" type="text" autocomplete="off" spellcheck="false" placeholder="輸入答案（如 =A4+$B$1、#DIV/0!、VLOOKUP）後按 Enter…" />
+          <button class="btn btn-primary" onclick="APP.checkSprintInput()">發射答案</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6. FREE EXCEL SANDBOX -->
+    <section id="view-sandbox" class="view">
+      <div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px">
+        <div>
+          <h2 style="margin:0;font-size:20px">自由試算表實驗室</h2>
+          <p style="margin:2px 0 0;font-size:13px;color:var(--ink-muted)">完整支援 HKDSE 全部試算表函數、點選參照、F4 鎖定與拖曳填滿，可隨時匯出 CSV。</p>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn btn-sm" onclick="APP.initSandbox('grades')">範例：班級成績表</button>
+          <button class="btn btn-sm" onclick="APP.initSandbox('vlookup')">範例：VLOOKUP 價目表</button>
+          <button class="btn btn-sm" onclick="APP.initSandbox('blank')">空白試算表</button>
+          <button class="btn btn-copper btn-sm" onclick="APP.exportSandboxCsv()">匯出 CSV</button>
+        </div>
+      </div>
+      <div class="stage-card" style="padding:14px">
+        <div id="sandbox-grid-host"></div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- AUTO-OPEN GMAIL LOGIN MODAL -->
+  <div class="modal-backdrop hidden" id="login-modal" role="dialog" aria-modal="true" aria-labelledby="login-title">
+    <div class="modal-card">
+      <h3 id="login-title">登入學校 Gmail 開始練習</h3>
+      <p>登入後你的闖關紀錄、XP 與 DSE 批改結果會自動同步至老師的雲端進度表。</p>
+      <div id="gsi-btn-slot" style="margin-bottom:14px;display:flex;justify-content:center"></div>
+      <div style="border-top:1px solid var(--line-subtle);padding-top:12px;margin-top:8px">
+        <label class="field-lbl">或以學校電郵登入（離線／預覽適用）</label>
+        <input id="manual-email" class="field-inp" type="email" placeholder="例如：s2026001@frcss.edu.hk" />
+        <label class="field-lbl">學生姓名（選填）</label>
+        <input id="manual-name" class="field-inp" type="text" placeholder="例如：陳大文 4A" />
+      </div>
+      <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:16px">
+        <button class="btn btn-ghost btn-sm" onclick="APP.closeLoginModal()">先預覽介面</button>
+        <button class="btn btn-primary" onclick="APP.manualEmailLogin()">確認登入</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- HIDDEN TEACHER CONFIG MODAL (5-TAP LOGO OR CTRL+SHIFT+T) -->
+  <div class="modal-backdrop hidden" id="teacher-modal" role="dialog" aria-modal="true">
+    <div class="modal-card">
+      <h3>老師雲端連線設定</h3>
+      <p>貼上部署好的 Google Apps Script 網頁應用程式網址（/exec），即可啟用雲端答案庫核對與學生進度追蹤。</p>
+      <label class="field-lbl">Google Apps Script Web App URL (/exec)</label>
+      <input id="cfg-gas-url" class="field-inp" type="url" placeholder="https://script.google.com/macros/s/.../exec" />
+      <label class="field-lbl">Google OAuth Client ID</label>
+      <input id="cfg-client-id" class="field-inp" type="text" />
+      <div style="display:flex;gap:8px;justify-content:space-between;margin-top:16px">
+        <button class="btn btn-ghost btn-sm" onclick="APP.signOut()">登出目前帳號</button>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-ghost btn-sm" onclick="document.getElementById('teacher-modal').classList.add('hidden')">取消</button>
+          <button class="btn btn-primary" onclick="APP.saveTeacherCfg()">儲存設定</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+const DEFAULT_GAS_URL = "https://script.google.com/macros/s/AKfycbxawW8Qfg--uHjQVewGtr8nd8rxkZ45Z9gU_iM3_n3l31O-2abw_3201IEgHY3SasQP/exec";
+const DEFAULT_CLIENT_ID = "13333491283-9l610elv8e5vqglneb26nq9risf8i11a.apps.googleusercontent.com";
+const SPRINT_SALT = "HKDSE_ICT_EXCEL_VAULT_2026_FRCSS";
+const CHAPTERS = [{"ch": 1, "code": "E01", "title": "儲存格參照、範圍與公式複製（$ 鎖定）", "ref": "必修 A 試算表基礎 · 相對／絕對／混合參照", "notes": ["儲存格地址必為「欄字母＋列數字」（如 B3）；冒號「:」代表連續範圍（如 B2:B7），逗號「,」分隔不相連項目。", "相對參照（B2）：複製公式時會按移動方向自動平移列號與欄字母。", "絕對參照（$F$1）：欄與列同時加上 $ 鎖定，複製到任何位置皆指向同一格（常用於單一匯率、折扣或稅率）。", "混合參照（$A2 鎖欄不鎖列；B$1 鎖列不鎖欄）：適合製作二維乘數表或同時橫向及縱向填滿的折扣矩陣。"]}, {"ch": 2, "code": "E02", "title": "核心統計、計數函數與常見錯誤碼", "ref": "SUM / AVERAGE / MAX / MIN / COUNT / COUNTA / COUNTBLANK", "notes": ["SUM、AVERAGE、MAX、MIN 會自動忽略範圍內的文字與空白儲存格，但「+」運算符遇到文字會產生 #VALUE! 錯誤。", "COUNT 只點算包含「數值」的儲存格；COUNTA 點算所有「非空白」儲存格（含文字與數值）；COUNTBLANK 只點算空白格。", "常見錯誤碼：#DIV/0!（除以零）、#VALUE!（數據類型不合）、#NAME?（函數名稱串錯或文字漏加雙引號）、#REF!（參照無效儲存格）。"]}, {"ch": 3, "code": "E03", "title": "條件點算與條件求和（COUNTIF / SUMIF）", "ref": "COUNTIF(範圍, 條件) · SUMIF(條件範圍, 條件, 求和範圍)", "notes": ["COUNTIF(範圍, 條件)：範圍在前、條件在後；比較條件（如 \">=60\"）及文字條件（如 \"缺席\"）必須用雙引號包圍。", "SUMIF(條件範圍, 條件, 求和範圍)：當條件範圍符合條件時，把對應列於「求和範圍」的數值累加。", "邊界字眼分辨：「60 或以上」用 \">=60\"；「多於 80」用 \">80\"；「少於 300」用 \"<300\"；「不等於」用 \"<>\"。"]}, {"ch": 4, "code": "E04", "title": "邏輯函數與嵌套條件（IF / AND / OR / NOT）", "ref": "IF(條件, 真值, 假值) · 多層嵌套 IF", "notes": ["IF(邏輯測試, 條件為真傳回值, 條件為假傳回值)：文字結果須用雙引號包圍（如 \"及格\"），數值則不需引號。", "AND(條件1, 條件2) 須全部成立才為 TRUE；OR(條件1, 條件2) 只要其中一項成立即為 TRUE；NOT(條件) 反轉真假。", "多層嵌套 IF 判斷等級時（如 >=80 為 A、>=60 為 B、其餘 C），條件須嚴格由高至低（或由低至高）順序排列。"]}, {"ch": 5, "code": "E05", "title": "查表與排名函數（VLOOKUP / HLOOKUP / RANK）", "ref": "VLOOKUP(查值, 表格, 欄序, 精確/近似) · RANK", "notes": ["VLOOKUP(查閱值, 查閱表格, 回傳欄序, 範圍查閱)：查閱值必須位於查閱表格的「最左欄」。", "第四參數為 FALSE（或 0）作「精確比對」（適合學號、貨品編號）；為 TRUE（或 1）作「近似比對」（表格最左欄必須由小至大排序，適合分數轉等級）。", "複製 VLOOKUP 公式時，查閱表格範圍必須用絕對參照鎖定（如 $E$2:$F$5）。", "RANK(數值, 範圍, [次序])：次序省略或為 0 代表由大至小排名（最高分第 1）；為 1 代表由小至大（賽跑最短時間第 1）。"]}, {"ch": 6, "code": "E06", "title": "文字處理與數值進位函數（LEFT / RIGHT / MID / ROUND / INT / MOD）", "ref": "字串擷取、串接 & 與四捨五入", "notes": ["LEFT(文字, n) 取左邊 n 個字元；RIGHT(文字, n) 取右邊 n 個字元；MID(文字, 起點, 長度) 由第起點位（1 起計）擷取指定長度；LEN(文字) 計字元總數。", "「&」運算符可將多個字串或儲存格內容串接起來（例如 A2 & \"-\" & B2）。", "ROUND(數值, 小數位) 作四捨五入；INT(數值) 無條件向下取整；MOD(被除數, 除數) 取整數除法餘數。"]}, {"ch": 7, "code": "E07", "title": "格式設定、排序、篩選、圖表與樞紐分析表", "ref": "Pivot Table · 數據可視化 · 模擬分析 What-if", "notes": ["數值預設靠右對齊，文字預設靠左對齊；百分比格式會將原數值乘以 100 再加 %（如 0.085 顯示為 8.5%）。", "圖表選用原則：棒形圖（比較不同類別數值）、折線圖（顯示隨時間變化趨勢）、圓形圖（顯示各部分佔整體百分比）。", "樞紐分析表（Pivot Table）可快速對大量紀錄進行動態分組、匯總（總和／平均／計數）與交叉分析。", "自動篩選（AutoFilter）只暫時隱藏不符合條件的資料列，不會刪除原有數據。"]}, {"ch": 8, "code": "E08", "title": "HKDSE 綜合試算表實戰（多步驟建模）", "ref": "閱讀計劃 · 交流團匯率 · 運動會計分 · 商店銷售表", "notes": ["實戰建模步驟：① 檢查數據類型與文字防錯（用 SUM 避免 #VALUE!）；② 鎖定常數格（$）；③ 善用填滿控點橫向／縱向複製。", "檢視公式切換（顯示公式）能快速核對整欄參照有否因漏加 $ 而偏移。", "完成公式後應測試邊界數據及更改常數格（What-if 模擬分析），確保整個試算表自動重算無誤。"]}];
+const LEVELS = [{"id": "E01-1", "ch": 1, "diff": "medium", "type": "formula", "typeLabel": "寫公式", "xp": 20, "title": "基本算術公式與相對參照填滿", "prompt": "在 D2 輸入公式計算「蘋果」的小計（單價 × 數量），並用填滿控點向下填滿至 D5。", "hint": "用星號 * 作乘法：=B2*C2，完成後拖曳右下角琥珀色小方格至 D5。", "cell": "D2", "fill": "D5", "sheet": {"c": 4, "r": 5, "w": {"A": 76, "B": 76, "C": 68, "D": 84}, "st": {"A1": "hdr", "B1": "hdr", "C1": "hdr", "D1": "hdr"}, "merges": [], "cells": {"A1": "貨品", "B1": "單價($)", "C1": "數量", "D1": "小計($)", "A2": "蘋果", "B2": 6, "C2": 5, "A3": "橙", "B3": 5, "C3": 8, "A4": "香蕉", "B4": 4, "C4": 12, "A5": "提子", "B5": 28, "C5": 2}, "fmts": {}}, "rand": [{"r": "B2:C5", "lo": 2, "hi": 30}]}, {"id": "E01-2", "ch": 1, "diff": "medium", "type": "formula", "typeLabel": "寫公式", "xp": 20, "title": "絕對參照 $ 鎖定單一折扣格", "prompt": "全店劃一折扣寫在 F1（0.8）。在 C2 計算「筆記簿」的折後價（原價 × 折扣），並向下填滿至 C5。", "hint": "每一列都要乘以同一格 F1，必須用 $ 鎖定列號（如 $F$1），可按鍵盤 F4 鎖快速加上 $。", "cell": "C2", "fill": "C5", "sheet": {"c": 6, "r": 5, "w": {"A": 82, "B": 68, "C": 78, "D": 28, "E": 58, "F": 62}, "st": {"A1": "hdr", "B1": "hdr", "C1": "hdr", "E1": "hdr", "F1": "accent"}, "merges": [], "cells": {"A1": "文具", "B1": "原價", "C1": "折後價", "E1": "折扣", "F1": 0.8, "A2": "筆記簿", "B2": 25, "A3": "原子筆", "B3": 15, "A4": "計數機", "B4": 160, "A5": "文件夾", "B5": 20}, "fmts": {}}, "rand": [{"r": "B2:B5", "lo": 10, "hi": 200}, {"r": "F1", "lo": 0.5, "hi": 0.9, "step": 0.05}]}, {"id": "E01-3", "ch": 1, "diff": "medium", "type": "predict", "typeLabel": "複製預測", "xp": 20, "title": "預測公式向右與向下複製的參照變化", "prompt": "C2 原有公式 =A2+$B$1。若將 C2 複製並貼上到 E4，E4 的公式會變成什麼？", "hint": "由 C2 去 E4：欄向右移 +2（A→C），列向下移 +2（2→4）；有 $ 的 $B$1 鎖定不變。", "src": "C2", "dst": "E4", "srcF": "=A2+$B$1", "sheet": {"c": 5, "r": 5, "w": {"A": 64, "B": 64, "C": 72, "D": 64, "E": 72}, "st": {}, "merges": [], "cells": {"A1": 5, "B1": 10, "A2": 20, "B2": 30, "C2": "=A2+$B$1", "C4": 40}, "fmts": {}}}, {"id": "E01-4", "ch": 1, "diff": "hard", "type": "formula", "typeLabel": "寫公式", "xp": 35, "title": "【困難】混合參照製作折扣表（鎖欄 × 鎖列）", "prompt": "A 欄為原價、第 1 列為不同會員折扣。在 B2 寫一條公式（須用混合參照），使其能向右填滿至 D2，再試驗證 C2 與 D2 同樣正確！", "cell": "B2", "fill": "D2", "sheet": {"c": 4, "r": 4, "w": {"A": 86, "B": 72, "C": 72, "D": 72}, "st": {"A1": "hdr", "B1": "accent", "C1": "accent", "D1": "accent", "A2": "lbl", "A3": "lbl", "A4": "lbl"}, "merges": [], "cells": {"A1": "原價\\折扣", "B1": 0.9, "C1": 0.8, "D1": 0.7, "A2": 100, "A3": 200, "A4": 500}, "fmts": {}}, "rand": [{"r": "A2:A4", "lo": 50, "hi": 600, "step": 50}, {"r": "B1:D1", "lo": 0.5, "hi": 0.95, "step": 0.05}]}, {"id": "E01-5", "ch": 1, "diff": "hard", "type": "predict", "typeLabel": "複製預測", "xp": 35, "title": "【困難】混合參照複製追蹤（$A3 * B$1）", "prompt": "B3 原有公式 =$A3*B$1。將 B3 複製到 D5 後，D5 內的公式會變成什麼？", "src": "B3", "dst": "D5", "srcF": "=$A3*B$1", "sheet": {"c": 5, "r": 5, "w": {}, "st": {}, "merges": [], "cells": {"B1": 2, "C1": 3, "D1": 4, "A3": 10, "A4": 20, "A5": 30, "B3": "=$A3*B$1"}, "fmts": {}}}, {"id": "E01-6", "ch": 1, "diff": "hard", "type": "mc", "typeLabel": "概念選擇", "xp": 30, "title": "【困難】儲存格範圍格數與有效地址判斷", "prompt": "在試算表中，範圍 C2:E6 一共包含多少個儲存格？", "opts": [{"t": "15 個（3 欄 × 5 列）"}, {"t": "12 個（3 欄 × 4 列）"}, {"t": "8 個（3 欄 + 5 列）"}, {"t": "10 個（2 欄 × 5 列）"}]}, {"id": "E02-1", "ch": 2, "diff": "medium", "type": "formula", "typeLabel": "寫公式", "xp": 20, "title": "SUM 計算六位同學總分", "prompt": "在 B8 輸入公式，計算 B2 至 B7 六位同學的總分。", "hint": "使用 =SUM(B2:B7)。", "cell": "B8", "sheet": {"c": 3, "r": 8, "w": {"A": 90, "B": 80, "C": 54}, "st": {"A1": "hdr", "B1": "hdr", "A8": "lbl"}, "merges": [], "cells": {"A1": "姓名", "B1": "分數", "A2": "陳大文", "B2": 72, "A3": "李美麗", "B3": 88, "A4": "張小明", "B4": 64, "A5": "黃志強", "B5": 91, "A6": "何詠琳", "B6": 55, "A7": "林子軒", "B7": 80, "A8": "總分"}, "fmts": {}}, "rand": [{"r": "B2:B7", "lo": 30, "hi": 100}]}, {"id": "E02-2", "ch": 2, "diff": "medium", "type": "formula", "typeLabel": "寫公式", "xp": 20, "title": "AVERAGE 計算全班平均分", "prompt": "在 B8 輸入公式計算 B2 至 B7 的平均分（留意張小明「缺席」為文字）。", "hint": "使用 =AVERAGE(B2:B7)，AVERAGE 會自動忽略文字「缺席」。", "cell": "B8", "sheet": {"c": 3, "r": 8, "w": {"A": 90, "B": 80, "C": 54}, "st": {"A1": "hdr", "B1": "hdr", "A8": "lbl"}, "merges": [], "cells": {"A1": "姓名", "B1": "分數", "A2": "陳大文", "B2": 72, "A3": "李美麗", "B3": 88, "A4": "張小明", "B4": "缺席", "A5": "黃志強", "B5": 90, "A6": "何詠琳", "B6": 60, "A7": "林子軒", "B7": 80, "A8": "平均分"}, "fmts": {}}, "rand": [{"r": "B2:B7", "lo": 30, "hi": 100}]}, {"id": "E02-3", "ch": 2, "diff": "medium", "type": "formula", "typeLabel": "寫公式", "xp": 20, "title": "MAX 與 MIN 計算分數全距（最高分減最低分）", "prompt": "在 B8 輸入一條公式，計算 B2:B7 的分數全距（最高分減去最低分）。", "hint": "將 MAX(B2:B7) 減去 MIN(B2:B7)。", "cell": "B8", "sheet": {"c": 3, "r": 8, "w": {"A": 90, "B": 80, "C": 54}, "st": {"A1": "hdr", "B1": "hdr", "A8": "lbl"}, "merges": [], "cells": {"A1": "姓名", "B1": "分數", "A2": "陳大文", "B2": 72, "A3": "李美麗", "B3": 95, "A4": "張小明", "B4": 54, "A5": "黃志強", "B5": 88, "A6": "何詠琳", "B6": 61, "A7": "林子軒", "B7": 79, "A8": "分數全距"}, "fmts": {}}, "rand": [{"r": "B2:B7", "lo": 20, "hi": 100}]}, {"id": "E02-4", "ch": 2, "diff": "hard", "type": "formula", "typeLabel": "寫公式", "xp": 35, "title": "【困難】COUNT vs COUNTA 分辨有交分數人數", "prompt": "B2:B7 中部分學生填寫了「缺席」或留空。在 B8 用函數點算實際「有數字分數」的學生人數。", "cell": "B8", "sheet": {"c": 3, "r": 8, "w": {"A": 90, "B": 80, "C": 54}, "st": {"A1": "hdr", "B1": "hdr", "A8": "lbl"}, "merges": [], "cells": {"A1": "姓名", "B1": "分數", "A2": "陳大文", "B2": 72, "A3": "李美麗", "B3": "缺席", "A4": "張小明", "B4": 64, "A5": "黃志強", "B5": null, "A6": "何詠琳", "B6": 85, "A7": "林子軒", "B7": 0, "A8": "有分人數"}, "fmts": {}}, "rand": [{"r": "B2:B7", "lo": 0, "hi": 100}]}, {"id": "E02-5", "ch": 2, "diff": "hard", "type": "formula", "typeLabel": "寫公式", "xp": 35, "title": "【困難】COUNTBLANK 點算漏填資料格數", "prompt": "在 B8 輸入公式，點算 B2:B7 中完全空白（漏填）的儲存格數目。", "cell": "B8", "sheet": {"c": 3, "r": 8, "w": {"A": 90, "B": 80, "C": 54}, "st": {"A1": "hdr", "B1": "hdr", "A8": "lbl"}, "merges": [], "cells": {"A1": "姓名", "B1": "分數", "A2": "陳大文", "B2": 72, "A3": "李美麗", "B3": null, "A4": "張小明", "B4": "缺席", "A5": "黃志強", "B5": null, "A6": "何詠琳", "B6": 85, "A7": "林子軒", "B7": 0, "A8": "空白格數"}, "fmts": {}}, "rand": [{"r": "B2:B7", "lo": 0, "hi": 100}]}, {"id": "E02-6", "ch": 2, "diff": "hard", "type": "mc", "typeLabel": "錯誤碼診斷", "xp": 30, "title": "【困難】辨識四大常見 Excel 錯誤碼", "prompt": "若儲存格 A1 存有文字「未交」、A2 存有數值 50，在 A3 輸入 =A1+A2 會顯示哪個錯誤碼？", "opts": [{"t": "#VALUE!"}, {"t": "#DIV/0!"}, {"t": "#NAME?"}, {"t": "#REF!"}]}, {"id": "E03-1", "ch": 3, "diff": "medium", "type": "formula", "typeLabel": "寫公式", "xp": 20, "title": "COUNTIF 計算及格人數（>=60）", "prompt": "在 B9 輸入公式，點算 B2:B8 中分數達 60 分或以上（及格）的學生人數。", "hint": "COUNTIF(範圍, \"條件\")：「或以上」要包埋 60 分，寫 \">=60\"。", "cell": "B9", "sheet": {"c": 3, "r": 9, "w": {"A": 86, "B": 72, "C": 62}, "st": {"A1": "hdr", "B1": "hdr", "C1": "hdr", "A9": "lbl"}, "merges": [], "cells": {"A1": "姓名", "B1": "分數", "C1": "班別", "A2": "陳大文", "B2": 60, "C2": "4A", "A3": "李美麗", "B3": 85, "C3": "4A", "A4": "張小明", "B4": 48, "C4": "4B", "A5": "黃志強", "B5": 73, "C5": "4A", "A6": "何詠琳", "B6": 59, "C6": "4B", "A7": "林子軒", "B7": 92, "C7": "4B", "A8": "周俊傑", "B8": 65, "C8": "4A", "A9": "及格人數"}, "fmts": {}}, "rand": [{"r": "B2:B8", "lo": 30, "hi": 100, "sp": [60, 59]}]}, {"id": "E03-2", "ch": 3, "diff": "medium", "type": "formula", "typeLabel": "寫公式", "xp": 20, "title": "COUNTIF 點算指定文字類別", "prompt": "在 C9 輸入公式，點算 C2:C8 中屬於 \"4A\" 班的人數。", "hint": "文字條件須用雙引號包住：=COUNTIF(C2:C8,\"4A\")。", "cell": "C9", "sheet": {"c": 3, "r": 9, "w": {"A": 86, "B": 72, "C": 72}, "st": {"A1": "hdr", "B1": "hdr", "C1": "hdr", "A9": "lbl"}, "merges": [], "cells": {"A1": "姓名", "B1": "分數", "C1": "班別", "A2": "陳大文", "B2": 60, "C2": "4A", "A3": "李美麗", "B3": 85, "C3": "4A", "A4": "張小明", "B4": 48, "C4": "4B", "A5": "黃志強", "B5": 73, "C5": "4A", "A6": "何詠琳", "B6": 59, "C6": "4B", "A7": "林子軒", "B7": 92, "C7": "4B", "A8": "周俊傑", "B8": 65, "C8": "4A", "A9": "4A 人數"}, "fmts": {}}, "rand": [{"r": "C2:C8", "pool": ["4A", "4B", "4C"]}]}, {"id": "E03-3", "ch": 3, "diff": "medium", "type": "formula", "typeLabel": "寫公式", "xp": 20, "title": "SUMIF 計算指定班別總分", "prompt": "在 B9 輸入公式，只加總班別（C2:C8）為 \"4A\" 的學生分數（B2:B8）。", "hint": "SUMIF 三個參數次序：=SUMIF(條件範圍, \"條件\", 求和範圍)。", "cell": "B9", "sheet": {"c": 3, "r": 9, "w": {"A": 86, "B": 78, "C": 68}, "st": {"A1": "hdr", "B1": "hdr", "C1": "hdr", "A9": "lbl"}, "merges": [], "cells": {"A1": "姓名", "B1": "分數", "C1": "班別", "A2": "陳大文", "B2": 60, "C2": "4A", "A3": "李美麗", "B3": 85, "C3": "4A", "A4": "張小明", "B4": 48, "C4": "4B", "A5": "黃志強", "B5": 73, "C5": "4A", "A6": "何詠琳", "B6": 59, "C6": "4B", "A7": "林子軒", "B7": 92, "C7": "4B", "A8": "周俊傑", "B8": 65, "C8": "4A", "A9": "4A 總分"}, "fmts": {}}, "rand": [{"r": "B2:B8", "lo": 30, "hi": 100}, {"r": "C2:C8", "pool": ["4A", "4B"]}]}, {"id": "E03-4", "ch": 3, "diff": "hard", "type": "formula", "typeLabel": "寫公式", "xp": 35, "title": "【困難】SUMIF 雙參數寫法（條件與求和同範圍）", "prompt": "在 B8 計算所有金額「多於 $500」（不包括 $500）的訂單總金額。", "cell": "B8", "sheet": {"c": 3, "r": 8, "w": {"A": 86, "B": 88, "C": 54}, "st": {"A1": "hdr", "B1": "hdr", "A8": "lbl"}, "merges": [], "cells": {"A1": "訂單", "B1": "金額($)", "A2": "D01", "B2": 500, "A3": "D02", "B3": 820, "A4": "D03", "B4": 310, "A5": "D04", "B5": 1200, "A6": "D05", "B6": 450, "A7": "D06", "B7": 680, "A8": "大額總計"}, "fmts": {}}, "rand": [{"r": "B2:B7", "lo": 100, "hi": 1500, "step": 50, "sp": [500]}]}, {"id": "E03-5", "ch": 3, "diff": "hard", "type": "formula", "typeLabel": "寫公式", "xp": 35, "title": "【困難】SUMIF / COUNTIF 計算條件平均分", "prompt": "在 B9 計算所有 \"4A\" 班學生的「平均分」（不准使用 AVERAGEIF，請以 SUMIF 除以 COUNTIF）。", "cell": "B9", "sheet": {"c": 3, "r": 9, "w": {"A": 86, "B": 78, "C": 68}, "st": {"A1": "hdr", "B1": "hdr", "C1": "hdr", "A9": "lbl"}, "merges": [], "cells": {"A1": "姓名", "B1": "分數", "C1": "班別", "A2": "陳大文", "B2": 60, "C2": "4A", "A3": "李美麗", "B3": 85, "C3": "4A", "A4": "張小明", "B4": 48, "C4": "4B", "A5": "黃志強", "B5": 75, "C5": "4A", "A6": "何詠琳", "B6": 59, "C6": "4B", "A7": "林子軒", "B7": 92, "C7": "4B", "A8": "周俊傑", "B8": 80, "C8": "4A", "A9": "4A 平均"}, "fmts": {}}, "rand": [{"r": "B2:B8", "lo": 40, "hi": 100}]}, {"id": "E03-6", "ch": 3, "diff": "hard", "type": "mc", "typeLabel": "條件防伏", "xp": 30, "title": "【困難】COUNTIF 條件寫法辨錯", "prompt": "要點算 A2:A20 中「少於 50 分」的人數，下列哪條公式完全正確？", "opts": [{"t": "=COUNTIF(A2:A20,\"<50\")"}, {"t": "=COUNTIF(\"<50\",A2:A20)"}, {"t": "=COUNTIF(A2:A20,<50)"}, {"t": "=COUNTIF(A2:A20,\"<=50\")"}]}, {"id": "E04-1", "ch": 4, "diff": "medium", "type": "formula", "typeLabel": "寫公式", "xp": 20, "title": "基本 IF 判斷及格或不及格", "prompt": "50 分或以上為「及格」，否則為「不及格」。在 C2 輸入 IF 公式並向下填滿至 C5。", "hint": "格式：=IF(B2>=50,\"及格\",\"不及格\")，文字結果須用雙引號包住。", "cell": "C2", "fill": "C5", "sheet": {"c": 3, "r": 5, "w": {"A": 86, "B": 70, "C": 92}, "st": {"A1": "hdr", "B1": "hdr", "C1": "hdr"}, "merges": [], "cells": {"A1": "姓名", "B1": "分數", "C1": "結果", "A2": "陳大文", "B2": 62, "A3": "李美麗", "B3": 45, "A4": "張小明", "B4": 50, "A5": "黃志強", "B5": 88}, "fmts": {}}, "rand": [{"r": "B2:B5", "lo": 20, "hi": 100, "sp": [50, 49]}]}, {"id": "E04-2", "ch": 4, "diff": "medium", "type": "formula", "typeLabel": "寫公式", "xp": 20, "title": "IF 配合 AND 檢查雙重獎學金資格", "prompt": "必須「操行為 A」而且「分數 >= 80」才獲獎（輸出 \"Y\"，否則 \"N\"）。在 D2 寫公式並填滿至 D5。", "hint": "用 AND(B2>=80, C2=\"A\") 作為 IF 的第一個參數。", "cell": "D2", "fill": "D5", "sheet": {"c": 4, "r": 5, "w": {"A": 82, "B": 64, "C": 64, "D": 68}, "st": {"A1": "hdr", "B1": "hdr", "C1": "hdr", "D1": "hdr"}, "merges": [], "cells": {"A1": "姓名", "B1": "分數", "C1": "操行", "D1": "獲獎", "A2": "陳大文", "B2": 85, "C2": "A", "A3": "李美麗", "B3": 92, "C3": "B", "A4": "張小明", "B4": 76, "C4": "A", "A5": "黃志強", "B5": 80, "C5": "A"}, "fmts": {}}, "rand": [{"r": "B2:B5", "lo": 60, "hi": 100, "sp": [80]}, {"r": "C2:C5", "pool": ["A", "B"]}]}, {"id": "E04-3", "ch": 4, "diff": "medium", "type": "formula", "typeLabel": "寫公式", "xp": 20, "title": "IF 配合 OR 檢查免費入場優惠", "prompt": "年齡小於 12 歲「或」大於等於 65 歲可免費入場（輸出 0，否則收費 80）。在 C2 寫公式並填滿至 C5。", "hint": "使用 OR(B2<12, B2>=65)，注意票價 0 與 80 是數字，不用加雙引號。", "cell": "C2", "fill": "C5", "sheet": {"c": 3, "r": 5, "w": {"A": 80, "B": 68, "C": 82}, "st": {"A1": "hdr", "B1": "hdr", "C1": "hdr"}, "merges": [], "cells": {"A1": "訪客", "B1": "年齡", "C1": "票價($)", "A2": "小明", "B2": 10, "A3": "志強", "B3": 28, "A4": "陳伯", "B4": 68, "A5": "嘉欣", "B5": 12}, "fmts": {}}, "rand": [{"r": "B2:B5", "lo": 5, "hi": 80, "sp": [11, 12, 65]}]}, {"id": "E04-4", "ch": 4, "diff": "hard", "type": "formula", "typeLabel": "寫公式", "xp": 35, "title": "【困難】多層嵌套 IF 評定 A / B / C 等級", "prompt": "80 或以上為 \"A\"，60 至 79 為 \"B\"，其餘為 \"C\"。在 C2 輸入嵌套 IF 公式並填滿至 C5。", "cell": "C2", "fill": "C5", "sheet": {"c": 3, "r": 5, "w": {"A": 86, "B": 70, "C": 76}, "st": {"A1": "hdr", "B1": "hdr", "C1": "hdr"}, "merges": [], "cells": {"A1": "姓名", "B1": "分數", "C1": "等級", "A2": "陳大文", "B2": 84, "A3": "李美麗", "B3": 68, "A4": "張小明", "B4": 55, "A5": "黃志強", "B5": 80}, "fmts": {}}, "rand": [{"r": "B2:B5", "lo": 30, "hi": 100, "sp": [60, 80]}]}, {"id": "E04-5", "ch": 4, "diff": "hard", "type": "formula", "typeLabel": "寫公式", "xp": 35, "title": "【困難】IF 計算條件滿額折扣實付金額", "prompt": "消費滿 $500（>=500）享九折（×0.9），否則原價收費。在 C2 寫公式計算實付金額並填滿至 C5。", "cell": "C2", "fill": "C5", "sheet": {"c": 3, "r": 5, "w": {"A": 80, "B": 78, "C": 82}, "st": {"A1": "hdr", "B1": "hdr", "C1": "hdr"}, "merges": [], "cells": {"A1": "顧客", "B1": "消費($)", "C1": "實付($)", "A2": "客戶1", "B2": 600, "A3": "客戶2", "B3": 420, "A4": "客戶3", "B4": 500, "A5": "客戶4", "B5": 1000}, "fmts": {}}, "rand": [{"r": "B2:B5", "lo": 100, "hi": 1200, "step": 20, "sp": [500]}]}, {"id": "E04-6", "ch": 4, "diff": "hard", "type": "mc", "typeLabel": "邏輯陷阱", "xp": 30, "title": "【困難】嵌套 IF 條件次序邏輯錯誤", "prompt": "某學生寫了 =IF(B2>=60,\"B\",IF(B2>=80,\"A\",\"C\"))。當 B2 = 90 時會輸出什麼？", "opts": [{"t": "B（因為 90>=60 率先成立，後面分支不會執行）"}, {"t": "A（Excel 會自動找最嚴格的條件）"}, {"t": "C"}, {"t": "#VALUE!"}]}, {"id": "E05-1", "ch": 5, "diff": "medium", "type": "formula", "typeLabel": "寫公式", "xp": 20, "title": "VLOOKUP 精確查表（FALSE）查貨品單價", "prompt": "參考右側價目表 E2:F5，在 B2 用 VLOOKUP 根據貨品編號（A2）精確查出單價，並向下填滿至 B4。", "hint": "格式：=VLOOKUP(A2, $E$2:$F$5, 2, FALSE)，記住用 $ 鎖定查閱表格！", "cell": "B2", "fill": "B4", "sheet": {"c": 6, "r": 5, "w": {"A": 64, "B": 72, "C": 28, "D": 28, "E": 64, "F": 68}, "st": {"A1": "hdr", "B1": "hdr", "E1": "hdr", "F1": "hdr"}, "merges": [], "cells": {"A1": "編號", "B1": "單價", "E1": "編號", "F1": "單價", "A2": "P03", "A3": "P01", "A4": "P04", "E2": "P01", "F2": 18, "E3": "P02", "F3": 25, "E4": "P03", "F4": 40, "E5": "P04", "F5": 12}, "fmts": {}}, "rand": [{"r": "F2:F5", "lo": 10, "hi": 90}]}, {"id": "E05-2", "ch": 5, "diff": "medium", "type": "formula", "typeLabel": "寫公式", "xp": 20, "title": "VLOOKUP 近似查表（TRUE）分數換算等級", "prompt": "右側等級表 E2:F5 已按最低分由小至大排序。在 C2 用 VLOOKUP 近似查出等級並填滿至 C5。", "hint": "範圍對照分數區間須用近似比對 TRUE：=VLOOKUP(B2,$E$2:$F$5,2,TRUE)。", "cell": "C2", "fill": "C5", "sheet": {"c": 6, "r": 5, "w": {"A": 76, "B": 58, "C": 62, "D": 24, "E": 66, "F": 58}, "st": {"A1": "hdr", "B1": "hdr", "C1": "hdr", "E1": "hdr", "F1": "hdr"}, "merges": [], "cells": {"A1": "姓名", "B1": "分數", "C1": "等級", "E1": "最低分", "F1": "等級", "A2": "陳大文", "B2": 82, "A3": "李美麗", "B3": 55, "A4": "張小明", "B4": 38, "A5": "黃志強", "B5": 70, "E2": 0, "F2": "D", "E3": 50, "F3": "C", "E4": 70, "F4": "B", "E5": 85, "F5": "A"}, "fmts": {}}, "rand": [{"r": "B2:B5", "lo": 10, "hi": 99}]}, {"id": "E05-3", "ch": 5, "diff": "medium", "type": "formula", "typeLabel": "寫公式", "xp": 20, "title": "RANK 計算全班名次（高分第 1）", "prompt": "在 C2 用 RANK 計算陳大文在 B2:B5 中的名次（最高分為第 1 名），並向下填滿至 C5。", "hint": "RANK(數值, 鎖定範圍, 0)，留意必須鎖定 $B$2:$B$5。", "cell": "C2", "fill": "C5", "sheet": {"c": 3, "r": 5, "w": {"A": 86, "B": 72, "C": 72}, "st": {"A1": "hdr", "B1": "hdr", "C1": "hdr"}, "merges": [], "cells": {"A1": "姓名", "B1": "總分", "C1": "名次", "A2": "陳大文", "B2": 78, "A3": "李美麗", "B3": 94, "A4": "張小明", "B4": 86, "A5": "黃志強", "B5": 78}, "fmts": {}}, "rand": [{"r": "B2:B5", "lo": 40, "hi": 100}]}, {"id": "E05-4", "ch": 5, "diff": "hard", "type": "formula", "typeLabel": "寫公式", "xp": 35, "title": "【困難】RANK 遞升排名（100 米短跑最快第 1）", "prompt": "短跑時間越短名次越高！在 C2 寫出 RANK 公式計算 100 米名次並向下填滿至 C5。", "cell": "C2", "fill": "C5", "sheet": {"c": 3, "r": 5, "w": {"A": 82, "B": 82, "C": 72}, "st": {"A1": "hdr", "B1": "hdr", "C1": "hdr"}, "merges": [], "cells": {"A1": "跑手", "B1": "時間(秒)", "C1": "名次", "A2": "俊傑", "B2": 12.4, "A3": "浩然", "B3": 11.8, "A4": "子軒", "B4": 13.1, "A5": "致豪", "B5": 11.5}, "fmts": {}}, "rand": [{"r": "B2:B5", "lo": 10.5, "hi": 15.0, "step": 0.1}]}, {"id": "E05-5", "ch": 5, "diff": "hard", "type": "formula", "typeLabel": "寫公式", "xp": 35, "title": "【困難】HLOOKUP 橫向查表查課室", "prompt": "下方 B5:E6 為橫向班別課室對照表。在 B2 用 HLOOKUP 查出 4B 對應課室並填滿至 B4。", "cell": "B2", "fill": "B4", "sheet": {"c": 5, "r": 6, "w": {"A": 64, "B": 68, "C": 60, "D": 60, "E": 60}, "st": {"A1": "hdr", "B1": "hdr", "A5": "lbl", "A6": "lbl"}, "merges": [], "cells": {"A1": "班別", "B1": "課室", "A2": "4B", "A3": "4D", "A4": "4A", "A5": "班別", "B5": "4A", "C5": "4B", "D5": "4C", "E5": "4D", "A6": "課室", "B6": "201", "C6": "202", "D6": "203", "E6": "204"}, "fmts": {}}}, {"id": "E05-6", "ch": 5, "diff": "hard", "type": "mc", "typeLabel": "查表排錯", "xp": 30, "title": "【困難】VLOOKUP 出現 #N/A 錯誤的原因", "prompt": "使用 =VLOOKUP(A2, $E$2:$F$5, 2, FALSE) 時，若目標儲存格顯示 #N/A，最常見的原因是什麼？", "opts": [{"t": "查閱值在查閱表格最左欄找不到完全相符的項目"}, {"t": "第 3 參數欄序超過查閱表格總欄數"}, {"t": "表格內包含數字 0"}, {"t": "公式開頭漏了等號 ="}]}, {"id": "E06-1", "ch": 6, "diff": "medium", "type": "formula", "typeLabel": "寫公式", "xp": 20, "title": "LEFT 與 RIGHT 拆解學生編號", "prompt": "A 欄學號格式為「班別＋兩位學號」（如 4A05）。在 B2 用 LEFT 提取首 2 字元（班別），並填滿至 B4。", "hint": "使用 =LEFT(A2,2) 提取左方首 2 個字元。", "cell": "B2", "fill": "B4", "sheet": {"c": 3, "r": 4, "w": {"A": 92, "B": 72, "C": 72}, "st": {"A1": "hdr", "B1": "hdr", "C1": "hdr"}, "merges": [], "cells": {"A1": "學生編號", "B1": "班別", "C1": "學號", "A2": "4A05", "A3": "4B12", "A4": "4C08"}, "fmts": {}}}, {"id": "E06-2", "ch": 6, "diff": "medium", "type": "formula", "typeLabel": "寫公式", "xp": 20, "title": "MID 擷取中間年份代碼", "prompt": "A 欄書籍編號格式如 BK-2026-01。在 B2 用 MID 由第 4 個字元起擷取 4 位年份，並填滿至 B4。", "hint": "MID(儲存格, 起始位置, 字元數)：第 4 位開始取 4 個字元即 =MID(A2,4,4)。", "cell": "B2", "fill": "B4", "sheet": {"c": 3, "r": 4, "w": {"A": 106, "B": 88, "C": 54}, "st": {"A1": "hdr", "B1": "hdr"}, "merges": [], "cells": {"A1": "書號", "B1": "出版年份", "A2": "BK-2026-01", "A3": "BK-2024-15", "A4": "BK-2025-08"}, "fmts": {}}}, {"id": "E06-3", "ch": 6, "diff": "medium", "type": "formula", "typeLabel": "寫公式", "xp": 20, "title": "用 & 串接學校電郵地址", "prompt": "將 A 欄登入名稱加上尾綴 \"@school.hk\"。在 B2 用 & 寫公式並填滿至 B4。", "hint": "用 & 連接儲存格與文字：=A2&\"@school.hk\"。", "cell": "B2", "fill": "B4", "sheet": {"c": 2, "r": 4, "w": {"A": 80, "B": 150}, "st": {"A1": "hdr", "B1": "hdr"}, "merges": [], "cells": {"A1": "帳號", "B1": "電郵地址", "A2": "s2401", "A3": "s2402", "A4": "s2403"}, "fmts": {}}}, {"id": "E06-4", "ch": 6, "diff": "hard", "type": "formula", "typeLabel": "寫公式", "xp": 35, "title": "【困難】ROUND 將平均分四捨五入至 1 位小數", "prompt": "在 D2 計算 B2:C2 的平均分並以 ROUND 四捨五入至 1 位小數，再向下填滿至 D4。", "cell": "D2", "fill": "D4", "sheet": {"c": 4, "r": 4, "w": {"A": 76, "B": 64, "C": 64, "D": 112}, "st": {"A1": "hdr", "B1": "hdr", "C1": "hdr", "D1": "hdr"}, "merges": [], "cells": {"A1": "姓名", "B1": "測驗1", "C1": "測驗2", "D1": "平均(1位小數)", "A2": "陳大文", "B2": 71, "C2": 82, "A3": "李美麗", "B3": 85, "C3": 90, "A4": "張小明", "B4": 63, "C4": 74}, "fmts": {}}, "rand": [{"r": "B2:C4", "lo": 40, "hi": 99}]}, {"id": "E06-5", "ch": 6, "diff": "hard", "type": "formula", "typeLabel": "寫公式", "xp": 35, "title": "【困難】INT 與 MOD 計算分組盒數與餘數", "prompt": "每盒可裝 12 個月餅。在 B2 用 INT 計算 A2 總數可裝滿多少完整盒，並填滿至 B4。", "cell": "B2", "fill": "B4", "sheet": {"c": 3, "r": 4, "w": {"A": 86, "B": 86, "C": 60}, "st": {"A1": "hdr", "B1": "hdr", "C1": "hdr", "C2": "accent"}, "merges": [], "cells": {"A1": "月餅總數", "B1": "完整盒數", "C1": "每盒", "A2": 50, "C2": 12, "A3": 75, "A4": 36}, "fmts": {}}, "rand": [{"r": "A2:A4", "lo": 15, "hi": 120}]}, {"id": "E06-6", "ch": 6, "diff": "hard", "type": "mc", "typeLabel": "函數辨析", "xp": 30, "title": "【困難】ROUND 與「減少小數位格式」的本質分別", "prompt": "若 A1 數值為 2.46，分別用「格式設為 1 位小數」與「=ROUND(A1,1)」處理後再乘以 2，結果有何不同？", "opts": [{"t": "格式只改顯示（實際仍用 2.46×2=4.92）；ROUND 改變實際值（2.5×2=5.0）"}, {"t": "兩者都會得出 5.0，沒有分別"}, {"t": "ROUND 只改變顯示，不改實際值"}, {"t": "兩者都會出現 #VALUE! 錯誤"}]}, {"id": "E07-1", "ch": 7, "diff": "medium", "type": "mc", "typeLabel": "數值格式", "xp": 20, "title": "百分比格式與對齊原則", "prompt": "在儲存格輸入數值 0.085 後將格式設為「百分比（1 位小數）」，儲存格會顯示什麼？", "opts": [{"t": "8.5%"}, {"t": "0.085%"}, {"t": "85.0%"}, {"t": "0.9%"}]}, {"id": "E07-2", "ch": 7, "diff": "medium", "type": "mc", "typeLabel": "圖表選擇", "xp": 20, "title": "按數據性質挑選最合適的圖表類型", "prompt": "要展示本校 2021 至 2026 年六年間「每月平均用電量」隨時間的變化趨勢，最合適選用哪種圖表？", "opts": [{"t": "折線圖（Line Chart）"}, {"t": "圓形圖（Pie Chart）"}, {"t": "散佈圖（XY Scatter）"}, {"t": "雷達圖"}]}, {"id": "E07-3", "ch": 7, "diff": "medium", "type": "mc", "typeLabel": "自動填滿", "xp": 20, "title": "自動填滿（AutoFill）等差數列", "prompt": "在 A1 輸入 3、A2 輸入 7，同時選取 A1:A2 後拖曳填滿控點至 A5，A5 的數值會是多少？", "opts": [{"t": "19"}, {"t": "10"}, {"t": "7"}, {"t": "23"}]}, {"id": "E07-4", "ch": 7, "diff": "hard", "type": "mc", "typeLabel": "樞紐分析表", "xp": 35, "title": "【困難】樞紐分析表（Pivot Table）欄位配置", "prompt": "有一張 500 筆「分店、月份、貨品類別、銷售額」紀錄表。要製作樞紐分析表比較「各分店（列）在不同月份（欄）的總銷售額」，應如何放置欄位？", "opts": [{"t": "列：分店；欄：月份；值：總計-銷售額"}, {"t": "列：銷售額；欄：分店；值：計數-月份"}, {"t": "篩選：銷售額；列：月份；欄：分店"}, {"t": "全部放進「篩選」區域"}]}, {"id": "E07-5", "ch": 7, "diff": "hard", "type": "mc", "typeLabel": "篩選與排序", "xp": 35, "title": "【困難】自動篩選對 SUM 與視覺結果的影響", "prompt": "某工作表用自動篩選（AutoFilter）隱藏了不合格學生後，以下哪項陳述正確？", "opts": [{"t": "被隱藏的資料列並未被刪除，但普通 =SUM() 仍會把隱藏列計算在內"}, {"t": "被隱藏的資料列已永久刪除，無法復原"}, {"t": "普通 =SUM() 會自動忽略所有被篩選隱藏的列"}, {"t": "篩選後無法再對可見資料排序"}]}, {"id": "E07-6", "ch": 7, "diff": "hard", "type": "mc", "typeLabel": "數據驗證", "xp": 30, "title": "【困難】文字型數字與預設對齊辨識", "prompt": "在工作表中發現 A1 的「20」靠左對齊，而 A2 的「30」靠右對齊。下列解釋何者正確？", "opts": [{"t": "A1 儲存的是文字型態 \"20\"，A2 儲存的是數值 30"}, {"t": "A1 是數值，A2 是文字"}, {"t": "A1 必定套用了公式"}, {"t": "兩格皆無法用於任何計算"}]}, {"id": "E08-1", "ch": 8, "diff": "medium", "type": "formula", "typeLabel": "綜合實戰", "xp": 25, "title": "閱讀計劃表：橫向填滿每月全班平均", "prompt": "在 C7 計算九月（C3:C6）全班平均閱讀本數，並向右填滿至 E7 一次計出三個月平均。", "hint": "寫 =AVERAGE(C3:C6)，向右拉時 C 欄會自動變成 D 欄、E 欄。", "cell": "C7", "fill": "E7", "sheet": {"c": 5, "r": 7, "w": {"A": 56, "B": 76, "C": 62, "D": 62, "E": 68}, "st": {"A1": "tt", "A2": "hdr", "B2": "hdr", "C2": "hdr", "D2": "hdr", "E2": "hdr", "A7": "lbl"}, "merges": [["A1", "E1"], ["A7", "B7"]], "cells": {"A1": "2E 閱讀計劃（本）", "A2": "學號", "B2": "姓名", "C2": "九月", "D2": "十月", "E2": "十一月", "A3": "01", "B3": "陳嘉欣", "C3": 4, "D3": 3, "E3": 5, "A4": "02", "B4": "李俊希", "C4": 2, "D4": 1, "E4": 3, "A5": "03", "B5": "黃樂怡", "C5": 6, "D5": 7, "E5": 5, "A6": "04", "B6": "張子朗", "C6": 2, "D6": 5, "E6": 3, "A7": "全班平均"}, "fmts": {}}, "rand": [{"r": "C3:E6", "lo": 1, "hi": 9}]}, {"id": "E08-2", "ch": 8, "diff": "medium", "type": "formula", "typeLabel": "綜合實戰", "xp": 25, "title": "日本交流團：避開「未交」文字陷阱計兩日總預算", "prompt": "C4 寫有文字「未交」。在 E2 寫出不會在 E4 產生 #VALUE! 錯誤的總預算公式，並向下填滿至 E5。", "hint": "不要用 =C2+D2（會在 E4 出現 #VALUE!），請改用會自動略過文字的 SUM 函數。", "cell": "E2", "fill": "E5", "sheet": {"c": 5, "r": 5, "w": {"A": 76, "B": 52, "C": 82, "D": 82, "E": 86}, "st": {"A1": "hdr", "B1": "hdr", "C1": "hdr", "D1": "hdr", "E1": "hdr"}, "merges": [], "cells": {"A1": "學生", "B1": "班別", "C1": "首日(HK$)", "D1": "次日(HK$)", "E1": "兩日合共", "A2": "陳詠詩", "B2": "4A", "C2": 350, "D2": 300, "A3": "林子軒", "B3": "4A", "C3": 280, "D3": 250, "A4": "周嘉豪", "B4": "4B", "C4": "未交", "D4": 320, "A5": "吳卓琳", "B5": "4B", "C5": 420, "D5": 380}, "fmts": {}}, "rand": [{"r": "D2:D5", "lo": 150, "hi": 500, "step": 10}]}, {"id": "E08-3", "ch": 8, "diff": "medium", "type": "formula", "typeLabel": "綜合實戰", "xp": 25, "title": "交流團日圓兌換（鎖定匯率格 + 四捨五入）", "prompt": "匯率寫在 B6（HK$1 = ¥19.5）。在 D2 計算可換日圓並四捨五入至整數（0 位小數），向下填滿至 D4。", "hint": "結合 ROUND 與絕對參照 $B$6：=ROUND(B2*$B$6,0)。", "cell": "D2", "fill": "D4", "sheet": {"c": 4, "r": 6, "w": {"A": 76, "B": 82, "C": 62, "D": 104}, "st": {"A1": "hdr", "B1": "hdr", "C1": "hdr", "D1": "hdr", "A6": "lbl", "B6": "accent"}, "merges": [], "cells": {"A1": "學生", "B1": "港元總額", "C1": "備註", "D1": "可換日圓(¥)", "A2": "陳詠詩", "B2": 650, "C2": "已交", "A3": "林子軒", "B3": 530, "C3": "已交", "A4": "周嘉豪", "B4": 325, "C4": "補交", "A6": "匯率", "B6": 19.5}, "fmts": {}}, "rand": [{"r": "B2:B4", "lo": 200, "hi": 900, "step": 5}, {"r": "B6", "lo": 17.5, "hi": 21.5, "step": 0.5}]}, {"id": "E08-4", "ch": 8, "diff": "hard", "type": "formula", "typeLabel": "綜合實戰", "xp": 40, "title": "【困難】查表算折扣後總價（VLOOKUP × 數量）", "prompt": "右側 E2:F4 為會員等級折扣率。在 D2 寫公式計算實付金額（原價 × 查表折扣率），向下填滿至 D4。", "cell": "D2", "fill": "D4", "sheet": {"c": 6, "r": 4, "w": {"A": 66, "B": 58, "C": 62, "D": 72, "E": 58, "F": 56}, "st": {"A1": "hdr", "B1": "hdr", "C1": "hdr", "D1": "hdr", "E1": "hdr", "F1": "hdr"}, "merges": [], "cells": {"A1": "顧客", "B1": "會員", "C1": "原價", "D1": "實付", "E1": "等級", "F1": "折扣", "A2": "客戶A", "B2": "金卡", "C2": 800, "A3": "客戶B", "B3": "銀卡", "C3": 500, "A4": "客戶C", "B4": "普通", "C4": 400, "E2": "金卡", "F2": 0.8, "E3": "銀卡", "F3": 0.9, "E4": "普通", "F4": 1}, "fmts": {}}, "rand": [{"r": "C2:C4", "lo": 200, "hi": 1000, "step": 50}]}, {"id": "E08-5", "ch": 8, "diff": "hard", "type": "formula", "typeLabel": "綜合實戰", "xp": 40, "title": "【困難】跳水比賽去極值求有效總分", "prompt": "5 位裁判分數位於 B2:F2。在 G2 寫公式：總和減去最高分及最低分，再向下填滿至 G4。", "cell": "G2", "fill": "G4", "sheet": {"c": 7, "r": 4, "w": {"A": 56, "B": 50, "C": 50, "D": 50, "E": 50, "F": 50, "G": 82}, "st": {"A1": "hdr", "B1": "hdr", "C1": "hdr", "D1": "hdr", "E1": "hdr", "F1": "hdr", "G1": "hdr"}, "merges": [], "cells": {"A1": "選手", "B1": "裁1", "C1": "裁2", "D1": "裁3", "E1": "裁4", "F1": "裁5", "G1": "有效總分", "A2": "甲", "B2": 8, "C2": 9, "D2": 7, "E2": 8.5, "F2": 9.5, "A3": "乙", "B3": 7.5, "C3": 8, "D3": 8, "E3": 7, "F3": 9, "A4": "丙", "B4": 9, "C4": 9.5, "D4": 8.5, "E4": 9, "F4": 8}, "fmts": {}}, "rand": [{"r": "B2:F4", "lo": 5, "hi": 10, "step": 0.5}]}, {"id": "E08-6", "ch": 8, "diff": "hard", "type": "formula", "typeLabel": "綜合實戰", "xp": 40, "title": "【困難】條件統計全校達標率（百分比公式）", "prompt": "80 分或以上為「達標」。在 B7 輸入一條公式計算全班達標比例（達標人數 ÷ 有分人數），結果為小數（如 0.5）。", "cell": "B7", "sheet": {"c": 3, "r": 7, "w": {"A": 86, "B": 82, "C": 54}, "st": {"A1": "hdr", "B1": "hdr", "A7": "lbl"}, "merges": [], "cells": {"A1": "姓名", "B1": "分數", "A2": "陳大文", "B2": 85, "A3": "李美麗", "B3": 72, "A4": "張小明", "B4": 90, "A5": "黃志強", "B5": 65, "A6": "何詠琳", "B6": "缺席", "A7": "達標比例"}, "fmts": {}}, "rand": [{"r": "B2:B5", "lo": 50, "hi": 100, "sp": [80]}]}];
+const DSE_PAPERS = [{"id": "DSE-XL-01", "year": "仿 2015 卷一乙", "topic": "絕對參照與折扣矩陣", "mode": "formula", "title": "書展九折與會員額外折扣計算", "prompt": "A 欄為書本原價，E1 為全場折扣（0.9）。在 C2 寫出公式計算每本書折後價並向下填滿至 C5。", "cell": "C2", "fill": "C5", "sheet": {"c": 5, "r": 5, "w": {"A": 86, "B": 64, "C": 74, "D": 72, "E": 56}, "st": {"A1": "hdr", "B1": "hdr", "C1": "hdr", "D1": "lbl", "E1": "accent"}, "merges": [], "cells": {"A1": "書名", "B1": "原價", "C1": "折後價", "D1": "全場折扣", "E1": 0.9, "A2": "ICT 天書", "B2": 180, "A3": "數學精讀", "B3": 150, "A4": "英文寫作", "B4": 120, "A5": "中文文言", "B5": 140}, "fmts": {}}, "rand": [{"r": "B2:B5", "lo": 80, "hi": 250, "step": 10}, {"r": "E1", "lo": 0.7, "hi": 0.95, "step": 0.05}]}, {"id": "DSE-XL-02", "year": "仿 2016 卷一乙", "topic": "VLOOKUP 精確查表", "mode": "formula", "title": "學生活動積分兌換禮品查表", "prompt": "根據右側兌換表 E2:F5，在 C2 用 VLOOKUP 依禮品代碼（B2）查出所需積分並填滿至 C5。", "cell": "C2", "fill": "C5", "sheet": {"c": 6, "r": 5, "w": {"A": 64, "B": 58, "C": 78, "D": 22, "E": 58, "F": 60}, "st": {"A1": "hdr", "B1": "hdr", "C1": "hdr", "E1": "hdr", "F1": "hdr"}, "merges": [], "cells": {"A1": "學生", "B1": "代碼", "C1": "所需積分", "E1": "代碼", "F1": "積分", "A2": "嘉欣", "B2": "G02", "A3": "俊希", "B3": "G04", "A4": "樂怡", "B4": "G01", "A5": "子朗", "B5": "G03", "E2": "G01", "F2": 50, "E3": "G02", "F3": 120, "E4": "G03", "F4": 200, "E5": "G04", "F5": 350}, "fmts": {}}, "rand": [{"r": "F2:F5", "lo": 30, "hi": 500, "step": 10}]}, {"id": "DSE-XL-03", "year": "仿 2017 卷一乙", "topic": "COUNTIF 與達標率", "mode": "formula", "title": "體適能仰臥起坐達標人數統計", "prompt": "1 分鐘達 35 次或以上為達標。在 B7 輸入公式統計 B2:B6 中達標的學生人數。", "cell": "B7", "sheet": {"c": 3, "r": 7, "w": {"A": 86, "B": 78, "C": 54}, "st": {"A1": "hdr", "B1": "hdr", "A7": "lbl"}, "merges": [], "cells": {"A1": "學生", "B1": "次數", "A2": "甲", "B2": 35, "A3": "乙", "B3": 28, "A4": "丙", "B4": 42, "A5": "丁", "B5": 34, "A6": "戊", "B6": 50, "A7": "達標人數"}, "fmts": {}}, "rand": [{"r": "B2:B6", "lo": 20, "hi": 55, "sp": [34, 35]}]}, {"id": "DSE-XL-04", "year": "仿 2018 卷一乙", "topic": "SUMIF 分類匯總", "mode": "formula", "title": "學會財政報表按類別加總支出", "prompt": "在 E2 用 SUMIF 計算類別（B2:B6）等於 D2（\"物資\"）的總支出（C2:C6），並向下填滿至 E3（\"印刷\"）。", "cell": "E2", "fill": "E3", "sheet": {"c": 5, "r": 6, "w": {"A": 66, "B": 60, "C": 74, "D": 60, "E": 78}, "st": {"A1": "hdr", "B1": "hdr", "C1": "hdr", "D1": "hdr", "E1": "hdr"}, "merges": [], "cells": {"A1": "項目", "B1": "類別", "C1": "支出($)", "D1": "分類", "E1": "總支出", "A2": "海報", "B2": "印刷", "C2": 180, "D2": "物資", "A3": "原子筆", "B3": "物資", "C3": 95, "D3": "印刷", "A4": "門票", "B4": "印刷", "C4": 220, "A5": "紙杯", "B5": "物資", "C5": 65, "A6": "膠紙", "B6": "物資", "C6": 40}, "fmts": {}}, "rand": [{"r": "C2:C6", "lo": 30, "hi": 300, "step": 5}]}, {"id": "DSE-XL-05", "year": "仿 2019 卷一乙", "topic": "嵌套 IF 與 AND", "mode": "formula", "title": "獎學金三級評定（優異／良好／無）", "prompt": "平均分 >= 85 且操行為 \"A\" 輸出 \"優異\"；平均分 >= 70 輸出 \"良好\"；其餘輸出 \"無\"。在 D2 寫公式並填滿至 D5。", "cell": "D2", "fill": "D5", "sheet": {"c": 4, "r": 5, "w": {"A": 68, "B": 68, "C": 58, "D": 84}, "st": {"A1": "hdr", "B1": "hdr", "C1": "hdr", "D1": "hdr"}, "merges": [], "cells": {"A1": "學生", "B1": "平均分", "C1": "操行", "D1": "獎項", "A2": "詠詩", "B2": 88, "C2": "A", "A3": "子軒", "B3": 86, "C3": "B", "A4": "卓琳", "B4": 74, "C4": "A", "A5": "浩賢", "B5": 65, "C5": "A"}, "fmts": {}}, "rand": [{"r": "B2:B5", "lo": 55, "hi": 98, "sp": [70, 85]}, {"r": "C2:C5", "pool": ["A", "B"]}]}, {"id": "DSE-XL-06", "year": "仿 2020 卷一乙", "topic": "VLOOKUP 近似查表", "mode": "formula", "title": "累進郵費計算查表（按重量克數）", "prompt": "右側 E2:F5 列出重量下限對應郵費（已升序排列）。在 C2 用 VLOOKUP 查出郵費並填滿至 C5。", "cell": "C2", "fill": "C5", "sheet": {"c": 6, "r": 5, "w": {"A": 58, "B": 72, "C": 72, "D": 20, "E": 78, "F": 68}, "st": {"A1": "hdr", "B1": "hdr", "C1": "hdr", "E1": "hdr", "F1": "hdr"}, "merges": [], "cells": {"A1": "包裹", "B1": "重量(g)", "C1": "郵費($)", "E1": "重量起(g)", "F1": "郵費($)", "A2": "P1", "B2": 25, "A3": "P2", "B3": 60, "A4": "P3", "B4": 180, "A5": "P4", "B5": 350, "E2": 0, "F2": 2.2, "E3": 30, "F3": 3.7, "E4": 100, "F4": 5.4, "E5": 250, "F5": 7.3}, "fmts": {}}, "rand": [{"r": "B2:B5", "lo": 10, "hi": 400, "step": 5}]}, {"id": "DSE-XL-07", "year": "仿 2021 卷一乙", "topic": "文字擷取與串接", "mode": "formula", "title": "從姓名與班號自動生成學校用戶名", "prompt": "用戶名規則：「s」＋「入學年份末 2 位（B2 的右邊 2 位）」＋「兩位班號（C2）」。在 D2 寫公式並填滿至 D4。", "cell": "D2", "fill": "D4", "sheet": {"c": 4, "r": 4, "w": {"A": 76, "B": 64, "C": 58, "D": 96}, "st": {"A1": "hdr", "B1": "hdr", "C1": "hdr", "D1": "hdr"}, "merges": [], "cells": {"A1": "姓名", "B1": "年份", "C1": "學號", "D1": "用戶名", "A2": "陳大文", "B2": "2024", "C2": "01", "A3": "李美麗", "B3": "2024", "C3": "15", "A4": "張小明", "B4": "2025", "C4": "08"}, "fmts": {}}}, {"id": "DSE-XL-08", "year": "仿 2022 卷一乙", "topic": "RANK 排名與鎖定範圍", "mode": "formula", "title": "陸運會 200 米決賽排名（最快第 1）", "prompt": "時間越短排名越前。在 C2 寫公式計算每名選手名次，並向下填滿至 C5。", "cell": "C2", "fill": "C5", "sheet": {"c": 3, "r": 5, "w": {"A": 76, "B": 82, "C": 72}, "st": {"A1": "hdr", "B1": "hdr", "C1": "hdr"}, "merges": [], "cells": {"A1": "選手", "B1": "時間(秒)", "C1": "名次", "A2": "跑手A", "B2": 24.8, "A3": "跑手B", "B3": 23.5, "A4": "跑手C", "B4": 25.1, "A5": "跑手D", "B5": 23.5}, "fmts": {}}, "rand": [{"r": "B2:B5", "lo": 22.0, "hi": 28.0, "step": 0.1}]}, {"id": "DSE-XL-09", "year": "仿 2023 卷一乙", "topic": "複製公式預測", "mode": "predict", "title": "混合參照公式複製（$B2 + C$1）", "prompt": "C2 內有公式 =$B2+C$1。若將 C2 複製至 E5，E5 內的公式會是什麼？", "src": "C2", "dst": "E5", "srcF": "=$B2+C$1", "sheet": {"c": 5, "r": 5, "w": {}, "st": {}, "merges": [], "cells": {"C1": 10, "D1": 20, "E1": 30, "B2": 1, "B3": 2, "B4": 3, "B5": 4, "C2": "=$B2+C$1"}, "fmts": {}}}, {"id": "DSE-XL-10", "year": "仿 2024 卷一乙", "topic": "除錯與忽略文字", "mode": "formula", "title": "去除缺席紀錄計算有效平均分", "prompt": "B2:B6 記錄分數，缺考者填 \"ABS\"。在 B7 寫出公式，只計算出席學生的總分除以出席人數（使用 SUM 與 COUNT）。", "cell": "B7", "sheet": {"c": 2, "r": 7, "w": {"A": 86, "B": 86}, "st": {"A1": "hdr", "B1": "hdr", "A7": "lbl"}, "merges": [], "cells": {"A1": "學生", "B1": "分數", "A2": "S01", "B2": 76, "A3": "S02", "B3": "ABS", "A4": "S03", "B4": 84, "A5": "S04", "B5": 92, "A6": "S05", "B6": "ABS", "A7": "有效平均"}, "fmts": {}}, "rand": [{"r": "B2:B6", "lo": 40, "hi": 100}]}, {"id": "DSE-XL-11", "year": "仿 2025 卷一乙", "topic": "樞紐分析表與資料分析", "mode": "mc", "title": "樞紐分析表與 What-if 模擬分析應用", "prompt": "學校欲在現有 2,000 筆「學生班別、學會、活動時數」紀錄表中，即時查看每班在不同學會的「平均活動時數」而不改動原始資料表，最合適使用哪項試算表工具？", "opts": [{"t": "樞紐分析表（Pivot Table）"}, {"t": "跨欄置中（Merge & Center）"}, {"t": "尋找與取代（Find & Replace）"}, {"t": "凍結窗格（Freeze Panes）"}]}, {"id": "DSE-XL-12", "year": "仿 2025 卷一乙", "topic": "錯誤碼綜合診斷", "mode": "mc", "title": "刪除參照欄後引發的錯誤碼", "prompt": "工作表 D2 原有公式 =SUM(B2:C2)。若用戶不小心將整欄 C 永久刪除，D2 最可能出現什麼錯誤？", "opts": [{"t": "#REF!（無效儲存格參照）"}, {"t": "#DIV/0!（除以零）"}, {"t": "#NAME?（函數名稱錯誤）"}, {"t": "#N/A（找不到資料）"}]}];
+const SPRINT_CARDS = [{"id": "XS01", "tier": "參照", "code": "C2: =A2+$B$1\n複製到 C4 後公式？", "q": "公式？", "h": "68aa8cf5"}, {"id": "XS02", "tier": "參照", "code": "B2: =$A2*B$1\n複製到 D2 後公式？", "q": "公式？", "h": "4b6bc750"}, {"id": "XS03", "tier": "參照", "code": "範圍 B2:D5\n一共有幾格？", "q": "格數？", "h": "2eba63c4"}, {"id": "XS04", "tier": "參照", "code": "D1: =$C$1*2\n複製到 F5 後公式？", "q": "公式？", "h": "0374e2c0"}, {"id": "XS05", "tier": "參照", "code": "A1=2, A2=5\n自動填滿至 A4，A4=?", "q": "數值？", "h": "31ba687d"}, {"id": "XS06", "tier": "參照", "code": "將 C3 嘅 =B3+1\n複製到 D4，公式？", "q": "公式？", "h": "3472d1f1"}, {"id": "XS07", "tier": "統計", "code": "A1:A4 = [10, \"無\", 20, 空]\n=COUNT(A1:A4)", "q": "輸出？", "h": "2bca760b"}, {"id": "XS08", "tier": "統計", "code": "A1:A4 = [10, \"無\", 20, 空]\n=COUNTA(A1:A4)", "q": "輸出？", "h": "2aca7478"}, {"id": "XS09", "tier": "統計", "code": "A1:A4 = [10, \"無\", 20, 空]\n=COUNTBLANK(A1:A4)", "q": "輸出？", "h": "2cca779e"}, {"id": "XS10", "tier": "統計", "code": "A1:A4 = [10, \"無\", 20, 空]\n=AVERAGE(A1:A4)", "q": "輸出？", "h": "2dba6231"}, {"id": "XS11", "tier": "統計", "code": "A1:A3 = [12, 45, 27]\n=MAX(A1:A3)-MIN(A1:A3)", "q": "輸出？", "h": "a7b51211"}, {"id": "XS12", "tier": "統計", "code": "A1:A4 = [0, 5, \"A\", 空]\n=COUNT(A1:A4)", "q": "輸出？", "h": "2bca760b"}, {"id": "XS13", "tier": "條件", "code": "A1:A5 = [40, 60, 75, 59, 80]\n=COUNTIF(A1:A5,\">=60\")", "q": "輸出？", "h": "2aca7478"}, {"id": "XS14", "tier": "條件", "code": "A1:A5 = [40, 60, 75, 59, 80]\n=COUNTIF(A1:A5,\">60\")", "q": "輸出？", "h": "2bca760b"}, {"id": "XS15", "tier": "條件", "code": "A1=75\n=IF(A1>=80,\"A\",\"B\")", "q": "輸出？", "h": "5bcac19b"}, {"id": "XS16", "tier": "條件", "code": "A1=85, B1=40\n=AND(A1>=80,B1>=50)", "q": "TRUE/FALSE？", "h": "6ab8ca0a"}, {"id": "XS17", "tier": "條件", "code": "A1=85, B1=40\n=OR(A1>=80,B1>=50)", "q": "TRUE/FALSE？", "h": "006d34a7"}, {"id": "XS18", "tier": "條件", "code": "A1=10\n=NOT(A1>5)", "q": "TRUE/FALSE？", "h": "6ab8ca0a"}, {"id": "XS19", "tier": "條件", "code": "A1:A3=[10,60,80]\n=SUMIF(A1:A3,\">=60\")", "q": "輸出？", "h": "176631ea"}, {"id": "XS20", "tier": "條件", "code": "A1=50\n=IF(A1>=50,A1*2,0)", "q": "輸出？", "h": "8f6fe92e"}, {"id": "XS21", "tier": "查表", "code": "VLOOKUP 精確比對\n第 4 參數寫 TRUE 定 FALSE？", "q": "參數？", "h": "6ab8ca0a"}, {"id": "XS22", "tier": "查表", "code": "分數=[70, 90, 80]\n=RANK(80,A1:A3,0)", "q": "名次？", "h": "2bca760b"}, {"id": "XS23", "tier": "查表", "code": "秒數=[12.5, 11.2, 13.0]\n=RANK(11.2,A1:A3,1)", "q": "名次？", "h": "2cca779e"}, {"id": "XS24", "tier": "查表", "code": "VLOOKUP 找不到精確值\n會顯示咩錯誤碼？", "q": "錯誤碼？", "h": "ac9e5732"}, {"id": "XS25", "tier": "查表", "code": "近似表 [0:D, 50:C, 70:B]\nVLOOKUP(65,表,2,TRUE)", "q": "等級？", "h": "5acac008"}, {"id": "XS26", "tier": "文字", "code": "A1=\"HKDSE2026\"\n=LEFT(A1,5)", "q": "輸出？", "h": "272adfde"}, {"id": "XS27", "tier": "文字", "code": "A1=\"HKDSE2026\"\n=RIGHT(A1,4)", "q": "輸出？", "h": "c9db22cd"}, {"id": "XS28", "tier": "文字", "code": "A1=\"BK-2026-01\"\n=MID(A1,4,4)", "q": "輸出？", "h": "c9db22cd"}, {"id": "XS29", "tier": "文字", "code": "A1=\"ICT 4A\"\n=LEN(A1)", "q": "字元數？", "h": "2fca7c57"}, {"id": "XS30", "tier": "文字", "code": "=ROUND(3.146,2)", "q": "輸出？", "h": "2ac6f694"}, {"id": "XS31", "tier": "文字", "code": "=INT(17/5)", "q": "輸出？", "h": "2aca7478"}, {"id": "XS32", "tier": "文字", "code": "=MOD(17,5)", "q": "輸出？", "h": "2bca760b"}, {"id": "XS33", "tier": "錯誤", "code": "=10/0 會顯示咩錯誤碼？", "q": "錯誤碼？", "h": "f4b1e7f7"}, {"id": "XS34", "tier": "錯誤", "code": "=\"缺席\"+20 顯示咩錯誤碼？", "q": "錯誤碼？", "h": "b26c1e48"}, {"id": "XS35", "tier": "錯誤", "code": "=TOTAL(A1:A5) 顯示咩錯誤碼？", "q": "錯誤碼？", "h": "7b706cdc"}, {"id": "XS36", "tier": "錯誤", "code": "數值 0.125 設為百分比\n顯示幾多%？(含%號)", "q": "顯示？", "h": "45d3ed3c"}];
+
+/* =========================================================================
+   HKDSE ICT — XL MINI SPREADSHEET ENGINE (FULL SYLLABUS EDITION)
+   ========================================================================= */
+const XL = (() => {
+  const toCol = (s) => {
+    let n = 0;
+    for (let i = 0; i < s.length; i++) n = n * 26 + s.charCodeAt(i) - 64;
+    return n - 1;
+  };
+  const fromCol = (n) => {
+    let s = '';
+    n++;
+    while (n > 0) {
+      const m = (n - 1) % 26;
+      s = String.fromCharCode(65 + m) + s;
+      n = Math.floor((n - 1) / 26);
+    }
+    return s;
+  };
+  const parseRef = (s) => {
+    const m = /^(\$?)([A-Z]+)(\$?)(\d+)$/i.exec(String(s || '').trim());
+    if (!m) return null;
+    return {
+      ac: !!m[1],
+      c: toCol(m[2].toUpperCase()),
+      ar: !!m[3],
+      r: parseInt(m[4], 10) - 1
+    };
+  };
+  const fmtRef = (p) => (p.ac ? '$' : '') + fromCol(p.c) + (p.ar ? '$' : '') + (p.r + 1);
+  const key = (c, r) => fromCol(c) + (r + 1);
+  const parseKey = (k) => {
+    const p = parseRef(k);
+    return p ? [p.c, p.r] : null;
+  };
+
+  function shiftRef(ref, dc, dr) {
+    const p = parseRef(ref);
+    if (!p) return ref;
+    const nc = p.ac ? p.c : p.c + dc;
+    const nr = p.ar ? p.r : p.r + dr;
+    if (nc < 0 || nr < 0) return '#REF!';
+    return fmtRef({ ac: p.ac, c: nc, ar: p.ar, r: nr });
+  }
+
+  function shift(formula, dc, dr) {
+    if (typeof formula !== 'string' || !formula.startsWith('=')) return formula;
+    let out = '', i = 0, inStr = false;
+    while (i < formula.length) {
+      const ch = formula[i];
+      if (ch === '"') {
+        inStr = !inStr;
+        out += ch;
+        i++;
+        continue;
+      }
+      if (!inStr) {
+        const rest = formula.slice(i);
+        const m = /^(\$?[A-Z]+\$?\d+)(?![A-Z0-9_(])/i.exec(rest);
+        if (m && (i === 0 || !/[A-Z0-9_]/i.test(formula[i - 1]))) {
+          out += shiftRef(m[1], dc, dr);
+          i += m[1].length;
+          continue;
+        }
+      }
+      out += ch;
+      i++;
+    }
+    return out;
+  }
+
+  function cycleDollar(ref) {
+    const p = parseRef(ref);
+    if (!p) return ref;
+    if (!p.ac && !p.ar) { p.ac = true; p.ar = true; }
+    else if (p.ac && p.ar) { p.ac = false; p.ar = true; }
+    else if (!p.ac && p.ar) { p.ac = true; p.ar = false; }
+    else { p.ac = false; p.ar = false; }
+    return fmtRef(p);
+  }
+
+  function expandRange(a, b) {
+    const p1 = parseRef(a), p2 = parseRef(b);
+    if (!p1 || !p2) return [];
+    const c1 = Math.min(p1.c, p2.c), c2 = Math.max(p1.c, p2.c);
+    const r1 = Math.min(p1.r, p2.r), r2 = Math.max(p1.r, p2.r);
+    const list = [];
+    for (let r = r1; r <= r2; r++) {
+      for (let c = c1; c <= c2; c++) list.push(key(c, r));
+    }
+    return list;
+  }
+
+  function isErr(v) {
+    return typeof v === 'string' && /^#[A-Z0-9/]+[!?]$/.test(v);
+  }
+
+  function toNum(v) {
+    if (isErr(v)) throw v;
+    if (v === '' || v === null || v === undefined) return 0;
+    if (typeof v === 'number') return v;
+    if (typeof v === 'boolean') return v ? 1 : 0;
+    const s = String(v).trim();
+    if (s === '') return 0;
+    const n = Number(s.replace(/,/g, ''));
+    if (Number.isNaN(n)) throw '#VALUE!';
+    return n;
+  }
+
+  function toStr(v) {
+    if (isErr(v)) throw v;
+    if (v === null || v === undefined) return '';
+    if (typeof v === 'boolean') return v ? 'TRUE' : 'FALSE';
+    return String(v);
+  }
+
+  function toBool(v) {
+    if (isErr(v)) throw v;
+    if (typeof v === 'boolean') return v;
+    if (typeof v === 'number') return v !== 0;
+    const s = String(v).trim().toUpperCase();
+    if (s === 'TRUE') return true;
+    if (s === 'FALSE' || s === '') return false;
+    throw '#VALUE!';
+  }
+
+  function tokenize(src) {
+    const t = [];
+    let i = 0;
+    while (i < src.length) {
+      const ch = src[i];
+      if (/\s/.test(ch)) { i++; continue; }
+      if (ch === '"') {
+        let s = '';
+        i++;
+        while (i < src.length) {
+          if (src[i] === '"' && src[i + 1] === '"') { s += '"'; i += 2; }
+          else if (src[i] === '"') { i++; break; }
+          else { s += src[i++]; }
+        }
+        t.push({ k: 'str', v: s });
+        continue;
+      }
+      if (/[0-9]/.test(ch) || (ch === '.' && /[0-9]/.test(src[i + 1] || ''))) {
+        let s = '';
+        while (i < src.length && /[0-9.]/.test(src[i])) s += src[i++];
+        if (src[i] === '%') { i++; t.push({ k: 'num', v: parseFloat(s) / 100 }); }
+        else t.push({ k: 'num', v: parseFloat(s) });
+        continue;
+      }
+      const two = src.slice(i, i + 2);
+      if (two === '<>' || two === '<=' || two === '>=') {
+        t.push({ k: 'op', v: two });
+        i += 2;
+        continue;
+      }
+      if ('+-*/^&=<>(),:'.includes(ch)) {
+        t.push({ k: '+-*/^&=<>'.includes(ch) ? 'op' : ch, v: ch });
+        i++;
+        continue;
+      }
+      if (/[A-Z_$]/i.test(ch)) {
+        let s = '';
+        while (i < src.length && /[A-Z0-9_$.]/i.test(src[i])) s += src[i++];
+        const up = s.toUpperCase();
+        if (src[i] === '(') t.push({ k: 'fn', v: up });
+        else if (up === 'TRUE' || up === 'FALSE') t.push({ k: 'bool', v: up === 'TRUE' });
+        else if (parseRef(up)) t.push({ k: 'ref', v: up });
+        else t.push({ k: 'id', v: up });
+        continue;
+      }
+      throw '#ERROR!';
+    }
+    return t;
+  }
+
+  function matchCrit(val, crit) {
+    if (crit === null || crit === undefined) return val === '' || val === null || val === undefined;
+    const cs = String(crit);
+    const m = /^(<=|>=|<>|<|>|=)(.*)$/.exec(cs);
+    if (m) {
+      const op = m[1], rhsRaw = m[2];
+      const rhsNum = Number(rhsRaw);
+      const isRhsNum = rhsRaw !== '' && !Number.isNaN(rhsNum);
+      if (isRhsNum && typeof val === 'number') {
+        if (op === '=') return val === rhsNum;
+        if (op === '<>') return val !== rhsNum;
+        if (op === '<') return val < rhsNum;
+        if (op === '>') return val > rhsNum;
+        if (op === '<=') return val <= rhsNum;
+        if (op === '>=') return val >= rhsNum;
+      }
+      if (isRhsNum && typeof val !== 'number') {
+        if (op === '<>') return true;
+        return false;
+      }
+      const ls = String(val === null || val === undefined ? '' : val).toLowerCase();
+      const rs = rhsRaw.toLowerCase();
+      if (op === '=') return ls === rs;
+      if (op === '<>') return ls !== rs;
+      if (op === '<') return ls < rs;
+      if (op === '>') return ls > rs;
+      if (op === '<=') return ls <= rs;
+      if (op === '>=') return ls >= rs;
+    }
+    if (typeof crit === 'number' || (cs !== '' && !Number.isNaN(Number(cs)))) {
+      const cn = Number(crit);
+      return typeof val === 'number' && Math.abs(val - cn) < 1e-9;
+    }
+    // Wildcard support (* and ?)
+    if (cs.includes('*') || cs.includes('?')) {
+      const re = new RegExp('^' + cs.replace(/[.+^${}()|[\]\\]/g, '\\$&').replace(/\*/g, '.*').replace(/\?/g, '.') + '$', 'i');
+      return re.test(String(val === null || val === undefined ? '' : val));
+    }
+    return String(val === null || val === undefined ? '' : val).toLowerCase() === cs.toLowerCase();
+  }
+
+  function flattenNums(args, sheet, seen) {
+    const out = [];
+    for (const a of args) {
+      if (a && a._range) {
+        for (const k of a.keys) {
+          const v = sheet.val(k, seen);
+          if (isErr(v)) throw v;
+          if (typeof v === 'number') out.push(v);
+        }
+      } else {
+        const v = a && a._val !== undefined ? a._val : a;
+        if (isErr(v)) throw v;
+        if (typeof v === 'number') out.push(v);
+        else if (typeof v === 'boolean') out.push(v ? 1 : 0);
+        else if (typeof v === 'string' && v.trim() !== '' && !Number.isNaN(Number(v))) out.push(Number(v));
+      }
+    }
+    return out;
+  }
+
+  function flattenVals(args, sheet, seen) {
+    const out = [];
+    for (const a of args) {
+      if (a && a._range) {
+        for (const k of a.keys) out.push(sheet.val(k, seen));
+      } else {
+        out.push(a && a._val !== undefined ? a._val : a);
+      }
+    }
+    return out;
+  }
+
+  function rangeTo2D(a, sheet, seen) {
+    if (!a || !a._range) return [[a && a._val !== undefined ? a._val : a]];
+    const p1 = parseRef(a.a), p2 = parseRef(a.b);
+    const c1 = Math.min(p1.c, p2.c), c2 = Math.max(p1.c, p2.c);
+    const r1 = Math.min(p1.r, p2.r), r2 = Math.max(p1.r, p2.r);
+    const rows = [];
+    for (let r = r1; r <= r2; r++) {
+      const row = [];
+      for (let c = c1; c <= c2; c++) row.push(sheet.val(key(c, r), seen));
+      rows.push(row);
+    }
+    return rows;
+  }
+
+  function evalAst(node, sheet, seen) {
+    if (!node) return '';
+    if (node.k === 'num' || node.k === 'str' || node.k === 'bool') return node.v;
+    if (node.k === 'ref') return sheet.val(node.v, seen);
+    if (node.k === 'range') return { _range: true, a: node.a, b: node.b, keys: expandRange(node.a, node.b) };
+    if (node.k === 'un') {
+      const v = toNum(evalAst(node.x, sheet, seen));
+      return node.op === '-' ? -v : v;
+    }
+    if (node.k === 'bin') {
+      const l = evalAst(node.l, sheet, seen);
+      const r = evalAst(node.r, sheet, seen);
+      if (isErr(l)) throw l;
+      if (isErr(r)) throw r;
+      const op = node.op;
+      if (op === '&') return toStr(l) + toStr(r);
+      if (['=', '<>', '<', '>', '<=', '>='].includes(op)) {
+        const bothNum = typeof l === 'number' && typeof r === 'number';
+        const lv = bothNum ? l : (typeof l === 'boolean' && typeof r === 'boolean' ? (l ? 1 : 0) : toStr(l).toLowerCase());
+        const rv = bothNum ? r : (typeof l === 'boolean' && typeof r === 'boolean' ? (r ? 1 : 0) : toStr(r).toLowerCase());
+        if (op === '=') return lv === rv;
+        if (op === '<>') return lv !== rv;
+        if (op === '<') return lv < rv;
+        if (op === '>') return lv > rv;
+        if (op === '<=') return lv <= rv;
+        if (op === '>=') return lv >= rv;
+      }
+      const ln = toNum(l), rn = toNum(r);
+      if (op === '+') return ln + rn;
+      if (op === '-') return ln - rn;
+      if (op === '*') return ln * rn;
+      if (op === '/') { if (rn === 0) throw '#DIV/0!'; return ln / rn; }
+      if (op === '^') return Math.pow(ln, rn);
+      throw '#ERROR!';
+    }
+    if (node.k === 'call') {
+      const fn = node.fn;
+      // Short-circuit functions
+      if (fn === 'IF') {
+        if (node.args.length < 2 || node.args.length > 3) throw '#VALUE!';
+        const cond = toBool(evalAst(node.args[0], sheet, seen));
+        if (cond) return evalAst(node.args[1], sheet, seen);
+        return node.args.length >= 3 ? evalAst(node.args[2], sheet, seen) : false;
+      }
+      if (fn === 'IFERROR') {
+        if (node.args.length !== 2) throw '#VALUE!';
+        try {
+          const v = evalAst(node.args[0], sheet, seen);
+          if (isErr(v)) return evalAst(node.args[1], sheet, seen);
+          return v;
+        } catch (e) {
+          return evalAst(node.args[1], sheet, seen);
+        }
+      }
+      const args = node.args.map(a => evalAst(a, sheet, seen));
+      switch (fn) {
+        case 'SUM': return flattenNums(args, sheet, seen).reduce((a, b) => a + b, 0);
+        case 'AVERAGE': {
+          const ns = flattenNums(args, sheet, seen);
+          if (!ns.length) throw '#DIV/0!';
+          return ns.reduce((a, b) => a + b, 0) / ns.length;
+        }
+        case 'MAX': {
+          const ns = flattenNums(args, sheet, seen);
+          return ns.length ? Math.max(...ns) : 0;
+        }
+        case 'MIN': {
+          const ns = flattenNums(args, sheet, seen);
+          return ns.length ? Math.min(...ns) : 0;
+        }
+        case 'COUNT': {
+          let c = 0;
+          for (const a of args) {
+            if (a && a._range) {
+              for (const k of a.keys) if (typeof sheet.val(k, seen) === 'number') c++;
+            } else if (typeof a === 'number') c++;
+          }
+          return c;
+        }
+        case 'COUNTA': {
+          let c = 0;
+          for (const v of flattenVals(args, sheet, seen)) {
+            if (v !== '' && v !== null && v !== undefined) c++;
+          }
+          return c;
+        }
+        case 'COUNTBLANK': {
+          let c = 0;
+          for (const v of flattenVals(args, sheet, seen)) {
+            if (v === '' || v === null || v === undefined) c++;
+          }
+          return c;
+        }
+        case 'MEDIAN': {
+          const ns = flattenNums(args, sheet, seen).sort((a, b) => a - b);
+          if (!ns.length) throw '#NUM!';
+          const mid = Math.floor(ns.length / 2);
+          return ns.length % 2 ? ns[mid] : (ns[mid - 1] + ns[mid]) / 2;
+        }
+        case 'LARGE': {
+          if (args.length !== 2) throw '#VALUE!';
+          const ns = flattenNums([args[0]], sheet, seen).sort((a, b) => b - a);
+          const k = Math.floor(toNum(args[1]));
+          if (k < 1 || k > ns.length) throw '#NUM!';
+          return ns[k - 1];
+        }
+        case 'SMALL': {
+          if (args.length !== 2) throw '#VALUE!';
+          const ns = flattenNums([args[0]], sheet, seen).sort((a, b) => a - b);
+          const k = Math.floor(toNum(args[1]));
+          if (k < 1 || k > ns.length) throw '#NUM!';
+          return ns[k - 1];
+        }
+        case 'RANK':
+        case 'RANK.EQ': {
+          if (args.length < 2) throw '#VALUE!';
+          const num = toNum(args[0]);
+          const ns = flattenNums([args[1]], sheet, seen);
+          const order = args.length >= 3 ? toNum(args[2]) : 0;
+          const sorted = ns.slice().sort((a, b) => order === 0 ? b - a : a - b);
+          const idx = sorted.findIndex(x => Math.abs(x - num) < 1e-9);
+          if (idx === -1) throw '#N/A';
+          return idx + 1;
+        }
+        case 'COUNTIF': {
+          if (args.length !== 2) throw '#VALUE!';
+          const vals = flattenVals([args[0]], sheet, seen);
+          const crit = args[1];
+          let c = 0;
+          for (const v of vals) if (matchCrit(v, crit)) c++;
+          return c;
+        }
+        case 'SUMIF': {
+          if (args.length < 2 || args.length > 3) throw '#VALUE!';
+          const rangeVals = flattenVals([args[0]], sheet, seen);
+          const crit = args[1];
+          const sumVals = args.length === 3 ? flattenVals([args[2]], sheet, seen) : rangeVals;
+          let s = 0;
+          for (let i = 0; i < rangeVals.length; i++) {
+            if (matchCrit(rangeVals[i], crit) && typeof sumVals[i] === 'number') s += sumVals[i];
+          }
+          return s;
+        }
+        case 'AVERAGEIF': {
+          if (args.length < 2 || args.length > 3) throw '#VALUE!';
+          const rangeVals = flattenVals([args[0]], sheet, seen);
+          const crit = args[1];
+          const avgVals = args.length === 3 ? flattenVals([args[2]], sheet, seen) : rangeVals;
+          let s = 0, c = 0;
+          for (let i = 0; i < rangeVals.length; i++) {
+            if (matchCrit(rangeVals[i], crit) && typeof avgVals[i] === 'number') { s += avgVals[i]; c++; }
+          }
+          if (!c) throw '#DIV/0!';
+          return s / c;
+        }
+        case 'AND': {
+          const vals = flattenVals(args, sheet, seen);
+          if (!vals.length) throw '#VALUE!';
+          return vals.every(v => toBool(v));
+        }
+        case 'OR': {
+          const vals = flattenVals(args, sheet, seen);
+          if (!vals.length) throw '#VALUE!';
+          return vals.some(v => toBool(v));
+        }
+        case 'NOT': {
+          if (args.length !== 1) throw '#VALUE!';
+          return !toBool(args[0]);
+        }
+        case 'VLOOKUP': {
+          if (args.length < 3 || args.length > 4) throw '#VALUE!';
+          const lv = args[0];
+          const tbl = rangeTo2D(args[1], sheet, seen);
+          const colIdx = Math.floor(toNum(args[2]));
+          const approx = args.length >= 4 ? toBool(args[3]) : true;
+          if (colIdx < 1 || !tbl.length || colIdx > tbl[0].length) throw '#REF!';
+          if (!approx) {
+            for (const row of tbl) {
+              const cell = row[0];
+              if (typeof lv === 'number' && typeof cell === 'number') {
+                if (Math.abs(lv - cell) < 1e-9) return row[colIdx - 1];
+              } else if (String(cell).toLowerCase() === String(lv).toLowerCase()) {
+                return row[colIdx - 1];
+              }
+            }
+            throw '#N/A';
+          } else {
+            let best = -1;
+            for (let i = 0; i < tbl.length; i++) {
+              const cell = tbl[i][0];
+              if (typeof lv === 'number' && typeof cell === 'number') {
+                if (cell <= lv) best = i;
+              } else if (String(cell).toLowerCase() <= String(lv).toLowerCase()) {
+                best = i;
+              }
+            }
+            if (best === -1) throw '#N/A';
+            return tbl[best][colIdx - 1];
+          }
+        }
+        case 'HLOOKUP': {
+          if (args.length < 3 || args.length > 4) throw '#VALUE!';
+          const lv = args[0];
+          const tbl = rangeTo2D(args[1], sheet, seen);
+          const rowIdx = Math.floor(toNum(args[2]));
+          const approx = args.length >= 4 ? toBool(args[3]) : true;
+          if (rowIdx < 1 || rowIdx > tbl.length) throw '#REF!';
+          const firstRow = tbl[0];
+          if (!approx) {
+            for (let c = 0; c < firstRow.length; c++) {
+              const cell = firstRow[c];
+              if (typeof lv === 'number' && typeof cell === 'number') {
+                if (Math.abs(lv - cell) < 1e-9) return tbl[rowIdx - 1][c];
+              } else if (String(cell).toLowerCase() === String(lv).toLowerCase()) {
+                return tbl[rowIdx - 1][c];
+              }
+            }
+            throw '#N/A';
+          } else {
+            let best = -1;
+            for (let c = 0; c < firstRow.length; c++) {
+              const cell = firstRow[c];
+              if (typeof lv === 'number' && typeof cell === 'number') {
+                if (cell <= lv) best = c;
+              } else if (String(cell).toLowerCase() <= String(lv).toLowerCase()) {
+                best = c;
+              }
+            }
+            if (best === -1) throw '#N/A';
+            return tbl[rowIdx - 1][best];
+          }
+        }
+        case 'INDEX': {
+          if (args.length < 2 || args.length > 3) throw '#VALUE!';
+          const tbl = rangeTo2D(args[0], sheet, seen);
+          const r = Math.floor(toNum(args[1]));
+          const c = args.length === 3 ? Math.floor(toNum(args[2])) : 1;
+          if (r < 1 || r > tbl.length || c < 1 || c > tbl[0].length) throw '#REF!';
+          return tbl[r - 1][c - 1];
+        }
+        case 'MATCH': {
+          if (args.length < 2 || args.length > 3) throw '#VALUE!';
+          const lv = args[0];
+          const vals = flattenVals([args[1]], sheet, seen);
+          const mt = args.length === 3 ? Math.floor(toNum(args[2])) : 1;
+          if (mt === 0) {
+            for (let i = 0; i < vals.length; i++) {
+              if (typeof lv === 'number' && typeof vals[i] === 'number') {
+                if (Math.abs(lv - vals[i]) < 1e-9) return i + 1;
+              } else if (String(vals[i]).toLowerCase() === String(lv).toLowerCase()) return i + 1;
+            }
+            throw '#N/A';
+          } else if (mt === 1) {
+            let best = -1;
+            for (let i = 0; i < vals.length; i++) if (vals[i] <= lv) best = i;
+            if (best === -1) throw '#N/A';
+            return best + 1;
+          } else {
+            let best = -1;
+            for (let i = 0; i < vals.length; i++) if (vals[i] >= lv) best = i;
+            if (best === -1) throw '#N/A';
+            return best + 1;
+          }
+        }
+        case 'ROUND': {
+          const n = toNum(args[0]), d = Math.floor(toNum(args[1] || 0));
+          const f = Math.pow(10, d);
+          return Math.round((n + Number.EPSILON) * f) / f;
+        }
+        case 'ROUNDUP': {
+          const n = toNum(args[0]), d = Math.floor(toNum(args[1] || 0));
+          const f = Math.pow(10, d);
+          return (n >= 0 ? Math.ceil(n * f) : Math.floor(n * f)) / f;
+        }
+        case 'ROUNDDOWN': {
+          const n = toNum(args[0]), d = Math.floor(toNum(args[1] || 0));
+          const f = Math.pow(10, d);
+          return (n >= 0 ? Math.floor(n * f) : Math.ceil(n * f)) / f;
+        }
+        case 'INT': return Math.floor(toNum(args[0]));
+        case 'ABS': return Math.abs(toNum(args[0]));
+        case 'SQRT': {
+          const n = toNum(args[0]);
+          if (n < 0) throw '#NUM!';
+          return Math.sqrt(n);
+        }
+        case 'POWER': return Math.pow(toNum(args[0]), toNum(args[1]));
+        case 'MOD': {
+          const n = toNum(args[0]), d = toNum(args[1]);
+          if (d === 0) throw '#DIV/0!';
+          return n - d * Math.floor(n / d);
+        }
+        case 'LEN': return toStr(args[0]).length;
+        case 'LEFT': {
+          const s = toStr(args[0]), n = args.length >= 2 ? Math.floor(toNum(args[1])) : 1;
+          if (n < 0) throw '#VALUE!';
+          return s.slice(0, n);
+        }
+        case 'RIGHT': {
+          const s = toStr(args[0]), n = args.length >= 2 ? Math.floor(toNum(args[1])) : 1;
+          if (n < 0) throw '#VALUE!';
+          return n === 0 ? '' : s.slice(-n);
+        }
+        case 'MID': {
+          const s = toStr(args[0]), start = Math.floor(toNum(args[1])), len = Math.floor(toNum(args[2]));
+          if (start < 1 || len < 0) throw '#VALUE!';
+          return s.slice(start - 1, start - 1 + len);
+        }
+        case 'UPPER': return toStr(args[0]).toUpperCase();
+        case 'LOWER': return toStr(args[0]).toLowerCase();
+        case 'TRIM': return toStr(args[0]).trim().replace(/\s+/g, ' ');
+        case 'CONCAT':
+        case 'CONCATENATE': return flattenVals(args, sheet, seen).map(v => toStr(v)).join('');
+        case 'FIND': {
+          const needle = toStr(args[0]), hay = toStr(args[1]), st = args.length >= 3 ? Math.floor(toNum(args[2])) : 1;
+          const idx = hay.indexOf(needle, st - 1);
+          if (idx === -1) throw '#VALUE!';
+          return idx + 1;
+        }
+        case 'SEARCH': {
+          const needle = toStr(args[0]).toLowerCase(), hay = toStr(args[1]).toLowerCase(), st = args.length >= 3 ? Math.floor(toNum(args[2])) : 1;
+          const idx = hay.indexOf(needle, st - 1);
+          if (idx === -1) throw '#VALUE!';
+          return idx + 1;
+        }
+        case 'VALUE': return toNum(args[0]);
+        default: throw '#NAME?';
+      }
+    }
+    throw '#ERROR!';
+  }
+
+  function parse(tokens) {
+    let pos = 0;
+    const peek = () => tokens[pos];
+    const eat = (k, v) => {
+      const t = tokens[pos];
+      if (!t || (k && t.k !== k) || (v !== undefined && t.v !== v)) throw '#ERROR!';
+      pos++;
+      return t;
+    };
+    const cmp = () => {
+      let l = cat();
+      while (peek() && peek().k === 'op' && ['=', '<>', '<', '>', '<=', '>='].includes(peek().v)) {
+        const op = eat().v;
+        l = { k: 'bin', op, l, r: cat() };
+      }
+      return l;
+    };
+    const cat = () => {
+      let l = add();
+      while (peek() && peek().k === 'op' && peek().v === '&') {
+        eat();
+        l = { k: 'bin', op: '&', l, r: add() };
+      }
+      return l;
+    };
+    const add = () => {
+      let l = mul();
+      while (peek() && peek().k === 'op' && (peek().v === '+' || peek().v === '-')) {
+        const op = eat().v;
+        l = { k: 'bin', op, l, r: mul() };
+      }
+      return l;
+    };
+    const mul = () => {
+      let l = pow();
+      while (peek() && peek().k === 'op' && (peek().v === '*' || peek().v === '/')) {
+        const op = eat().v;
+        l = { k: 'bin', op, l, r: pow() };
+      }
+      return l;
+    };
+    const pow = () => {
+      let l = un();
+      while (peek() && peek().k === 'op' && peek().v === '^') {
+        eat();
+        l = { k: 'bin', op: '^', l, r: un() };
+      }
+      return l;
+    };
+    const un = () => {
+      if (peek() && peek().k === 'op' && (peek().v === '+' || peek().v === '-')) {
+        return { k: 'un', op: eat().v, x: un() };
+      }
+      return prim();
+    };
+    const prim = () => {
+      const t = peek();
+      if (!t) throw '#ERROR!';
+      if (t.k === 'num' || t.k === 'str' || t.k === 'bool') { pos++; return t; }
+      if (t.k === 'ref') {
+        pos++;
+        if (peek() && peek().k === ':') {
+          pos++;
+          const b = eat('ref');
+          return { k: 'range', a: t.v, b: b.v };
+        }
+        return t;
+      }
+      if (t.k === 'fn') {
+        pos++;
+        eat('(');
+        const args = [];
+        if (!(peek() && peek().k === ')')) {
+          args.push(cmp());
+          while (peek() && peek().k === ',') { pos++; args.push(cmp()); }
+        }
+        eat(')');
+        return { k: 'call', fn: t.v, args };
+      }
+      if (t.k === '(') {
+        pos++;
+        const x = cmp();
+        eat(')');
+        return x;
+      }
+      if (t.k === 'id') { throw '#NAME?'; }
+      throw '#ERROR!';
+    };
+    const ast = cmp();
+    if (pos < tokens.length) throw '#ERROR!';
+    return ast;
+  }
+
+  function evaluate(raw, sheet, seen) {
+    if (typeof raw !== 'string') return raw === undefined || raw === null ? '' : raw;
+    if (!raw.startsWith('=')) {
+      const s = raw.trim();
+      if (s === '') return '';
+      if (s.toUpperCase() === 'TRUE') return true;
+      if (s.toUpperCase() === 'FALSE') return false;
+      if (/^-?\d+(\.\d+)?$/.test(s)) return parseFloat(s);
+      return raw;
+    }
+    try {
+      const toks = tokenize(raw.slice(1));
+      if (!toks.length) return '';
+      const ast = parse(toks);
+      const res = evalAst(ast, sheet, seen || new Set());
+      if (res && res._range) return '#VALUE!';
+      return res;
+    } catch (e) {
+      return typeof e === 'string' && e.startsWith('#') ? e : '#ERROR!';
+    }
+  }
+
+  function fmtVal(v, fmt) {
+    if (v === '' || v === null || v === undefined) return '';
+    if (isErr(v)) return v;
+    if (typeof v === 'boolean') return v ? 'TRUE' : 'FALSE';
+    if (typeof v !== 'number') return String(v);
+    if (!Number.isFinite(v)) return '#DIV/0!';
+    if (fmt === '$') return '$' + v.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+    if (fmt === '$2') return '$' + v.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (fmt === '%') return (v * 100).toFixed(1).replace(/\.0$/, '') + '%';
+    if (fmt === '0.0') return v.toFixed(1);
+    if (fmt === '0.00') return v.toFixed(2);
+    if (fmt === '#,##0') return Math.round(v).toLocaleString('en-US');
+    return Number.isInteger(v) ? String(v) : String(Math.round(v * 10000) / 10000);
+  }
+
+  function normVal(v) {
+    if (v === null || v === undefined || v === '') return '';
+    if (typeof v === 'boolean') return v ? 'TRUE' : 'FALSE';
+    if (typeof v === 'number') {
+      if (!Number.isFinite(v)) return '#ERR';
+      return 'N:' + (Math.round(v * 10000) / 10000);
+    }
+    return 'S:' + String(v).trim().toLowerCase();
+  }
+
+  function mulberry32(seed) {
+    let a = seed >>> 0;
+    return function() {
+      a |= 0; a = (a + 0x6D2B79F5) | 0;
+      let t = Math.imul(a ^ (a >>> 15), 1 | a);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+
+  class Sheet {
+    constructor(spec) {
+      this.c = spec.c || 5;
+      this.r = spec.r || 6;
+      this.w = Object.assign({}, spec.w || {});
+      this.st = Object.assign({}, spec.st || {});
+      this.merges = (spec.merges || []).slice();
+      this.fmts = Object.assign({}, spec.fmts || {});
+      this.raw = {};
+      const cells = spec.cells || {};
+      for (const k in cells) this.raw[k.toUpperCase()] = cells[k];
+    }
+    clone() {
+      return new Sheet({
+        c: this.c, r: this.r, w: this.w, st: this.st,
+        merges: this.merges, fmts: this.fmts, cells: this.raw
+      });
+    }
+    get(k) { const u = k.toUpperCase(); return this.raw[u] !== undefined ? this.raw[u] : ''; }
+    set(k, v) {
+      const u = k.toUpperCase();
+      if (v === '' || v === null || v === undefined) delete this.raw[u];
+      else this.raw[u] = v;
+    }
+    val(k, seen) {
+      const u = k.toUpperCase();
+      const s = seen || new Set();
+      if (s.has(u)) return '#CIRC!';
+      const next = new Set(s);
+      next.add(u);
+      return evaluate(this.get(u), this, next);
+    }
+    display(k, showF) {
+      const raw = this.get(k);
+      if (showF && typeof raw === 'string' && raw.startsWith('=')) return raw;
+      return fmtVal(this.val(k), this.fmts[k.toUpperCase()]);
+    }
+    fill(srcKey, dstKey) {
+      const p1 = parseRef(srcKey), p2 = parseRef(dstKey);
+      if (!p1 || !p2) return [];
+      const f = this.get(srcKey);
+      const c1 = Math.min(p1.c, p2.c), c2 = Math.max(p1.c, p2.c);
+      const r1 = Math.min(p1.r, p2.r), r2 = Math.max(p1.r, p2.r);
+      const filled = [];
+      for (let r = r1; r <= r2; r++) {
+        for (let c = c1; c <= c2; c++) {
+          const k = key(c, r);
+          if (k === srcKey.toUpperCase()) continue;
+          this.set(k, typeof f === 'string' && f.startsWith('=') ? shift(f, c - p1.c, r - p1.r) : f);
+          filled.push(k);
+        }
+      }
+      return filled;
+    }
+  }
+
+  function computeTestVectors(spec, targetCell, fillCell, randRules, userSheet) {
+    const targets = fillCell ? expandRange(targetCell, fillCell) : [targetCell.toUpperCase()];
+    const seeds = [0, 101, 202];
+    const vectors = [];
+    for (const seed of seeds) {
+      const sh = userSheet.clone();
+      if (seed !== 0 && Array.isArray(randRules) && randRules.length) {
+        const rng = mulberry32(seed);
+        for (const rule of randRules) {
+          const [a, b] = rule.r.includes(':') ? rule.r.split(':') : [rule.r, rule.r];
+          const ks = expandRange(a, b);
+          for (const k of ks) {
+            const cur = sh.get(k);
+            if (typeof cur === 'string' && cur.startsWith('=')) continue;
+            const lo = rule.lo !== undefined ? rule.lo : 1;
+            const hi = rule.hi !== undefined ? rule.hi : 100;
+            const isFloat = rule.step && rule.step < 1;
+            if (isFloat) {
+              const steps = Math.max(1, Math.round((hi - lo) / rule.step));
+              sh.set(k, Math.round((lo + Math.floor(rng() * (steps + 1)) * rule.step) * 1000) / 1000);
+            } else {
+              sh.set(k, lo + Math.floor(rng() * (hi - lo + 1)));
+            }
+          }
+        }
+      }
+      vectors.push(targets.map(k => normVal(sh.val(k))));
+    }
+    return {
+      targets,
+      formulas: targets.map(k => String(userSheet.get(k) || '').trim()),
+      vectors
+    };
+  }
+
+  // Highlight formula tokens using Warm Amber / Copper / Gold / Ivory (ZERO blue/green/pink)
+  function highlightFormula(str) {
+    const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    if (typeof str !== 'string' || !str.startsWith('=')) return esc(str || '');
+    const palette = ['#fbbf24', '#fb923c', '#fde68a', '#f59e0b', '#fdba74'];
+    let out = '<span class="xl-tok-eq">=</span>';
+    let i = 1, refIdx = 0;
+    const s = str;
+    while (i < s.length) {
+      const ch = s[i];
+      if (ch === '"') {
+        let j = i + 1;
+        while (j < s.length && s[j] !== '"') j++;
+        out += '<span class="xl-tok-str">' + esc(s.slice(i, j + 1)) + '</span>';
+        i = j + 1;
+        continue;
+      }
+      const rest = s.slice(i);
+      const rm = /^(\$?[A-Z]+\$?\d+(?::\$?[A-Z]+\$?\d+)?)/i.exec(rest);
+      if (rm && !/[A-Z0-9_]/i.test(s[i - 1] || '')) {
+        const col = palette[refIdx % palette.length];
+        refIdx++;
+        out += `<span class="xl-tok-ref" style="color:${col};border-bottom:1px dotted ${col}">${esc(rm[1])}</span>`;
+        i += rm[1].length;
+        continue;
+      }
+      const fm = /^([A-Z_.]+)(?=\()/i.exec(rest);
+      if (fm && !/[A-Z0-9_]/i.test(s[i - 1] || '')) {
+        out += '<span class="xl-tok-fn">' + esc(fm[1].toUpperCase()) + '</span>';
+        i += fm[1].length;
+        continue;
+      }
+      out += esc(ch);
+      i++;
+    }
+    return out;
+  }
+
+  return {
+    toCol, fromCol, parseRef, fmtRef, key, parseKey,
+    shiftRef, shift, cycleDollar, expandRange,
+    isErr, evaluate, fmtVal, normVal,
+    Sheet, computeTestVectors, highlightFormula
+  };
+})();
+
+
+/* ==========================================================================
+   HKDSE ICT — EXCEL LAB APPLICATION CONTROLLER
+   ZERO PLAINTEXT ANSWERS IN CLIENT · CLOUD GRADING VIA GAS
+   ========================================================================== */
+const APP = (() => {
+  const LS_KEY = 'hkdse_ict_excel_state_v1';
+  const CFG_KEY = 'hkdse_ict_excel_cfg_v1';
+
+  const state = {
+    view: 'home',
+    user: null,
+    solved: new Set(),
+    xp: 0,
+    sprintBest: 0,
+    tabSwitches: 0,
+    awaySec: 0,
+    awayStart: null,
+    // Quest state
+    activeLevelId: LEVELS[0].id,
+    openChapters: new Set([1]),
+    // DSE state
+    activeDseId: DSE_PAPERS[0].id,
+    dseFilter: '全部',
+    // Viz state
+    vizMode: 'ref',
+    // Teacher config
+    cfg: {
+      gasUrl: DEFAULT_GAS_URL || '',
+      clientId: DEFAULT_CLIENT_ID || ''
+    }
+  };
+
+  function loadLocal() {
+    try {
+      const saved = JSON.parse(localStorage.getItem(LS_KEY) || '{}');
+      if (Array.isArray(saved.solved)) state.solved = new Set(saved.solved);
+      if (typeof saved.xp === 'number') state.xp = saved.xp;
+      if (typeof saved.sprintBest === 'number') state.sprintBest = saved.sprintBest;
+      if (saved.user && saved.user.email) state.user = saved.user;
+    } catch (e) {}
+    try {
+      const c = JSON.parse(localStorage.getItem(CFG_KEY) || '{}');
+      if (c.gasUrl) state.cfg.gasUrl = c.gasUrl;
+      if (c.clientId) state.cfg.clientId = c.clientId;
+    } catch (e) {}
+  }
+
+  function saveLocal() {
+    try {
+      localStorage.setItem(LS_KEY, JSON.stringify({
+        solved: Array.from(state.solved),
+        xp: state.xp,
+        sprintBest: state.sprintBest,
+        user: state.user
+      }));
+    } catch (e) {}
+  }
+
+  function saveCfg() {
+    try { localStorage.setItem(CFG_KEY, JSON.stringify(state.cfg)); } catch (e) {}
+  }
+
+  function normFormulaStr(s) {
+    return String(s || '').trim().replace(/\s+/g, '').toUpperCase();
+  }
+
+  function fnv1aHash(text) {
+    const str = SPRINT_SALT + '::' + normFormulaStr(text);
+    const bytes = new TextEncoder().encode(str);
+    let h = 0x811c9dc5;
+    for (let i = 0; i < bytes.length; i++) {
+      h ^= bytes[i];
+      h = Math.imul(h, 0x01000193) >>> 0;
+    }
+    return h.toString(16).padStart(8, '0');
+  }
+
+  /* ---------------- SILENT ANTI-CHEAT TELEMETRY ---------------- */
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+      state.tabSwitches++;
+      state.awayStart = Date.now();
+    } else if (state.awayStart) {
+      state.awaySec += Math.round((Date.now() - state.awayStart) / 1000);
+      state.awayStart = null;
+    }
+  });
+
+  function blockPaste(el) {
+    if (!el) return;
+    el.addEventListener('paste', (e) => {
+      e.preventDefault();
+      showToast('為訓練實戰手寫公式能力，輸入框已停用貼上功能。');
+    });
+  }
+
+  let toastTimer = null;
+  function showToast(msg) {
+    let t = document.getElementById('app-toast');
+    if (!t) {
+      t = document.createElement('div');
+      t.id = 'app-toast';
+      t.style.cssText = 'position:fixed;bottom:22px;right:22px;z-index:200;background:#221b15;border:1px solid rgba(245,158,11,0.5);color:#fde68a;padding:10px 16px;border-radius:10px;font-size:13px;box-shadow:0 12px 30px rgba(0,0,0,0.5);max-width:340px;';
+      document.body.appendChild(t);
+    }
+    t.textContent = msg;
+    t.style.display = 'block';
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => { t.style.display = 'none'; }, 3200);
+  }
+
+  /* ---------------- CLOUD API (GOOGLE APPS SCRIPT) ---------------- */
+  async function callGasPost(payload) {
+    if (!state.cfg.gasUrl) {
+      return { ok: false, offline: true, error: '尚未設定雲端批改網址（老師請連點左上角標誌 5 下或按 Ctrl+Shift+T 設定 Google Apps Script 網址）。' };
+    }
+    try {
+      const resp = await fetch(state.cfg.gasUrl, {
+        method: 'POST',
+        redirect: 'follow',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify(Object.assign({
+          email: state.user ? state.user.email : '',
+          name: state.user ? state.user.name : '',
+          xp: state.xp,
+          sprintBest: state.sprintBest,
+          tabSwitches: state.tabSwitches,
+          awaySec: state.awaySec
+        }, payload))
+      });
+      return await resp.json();
+    } catch (err) {
+      return { ok: false, error: '連線雲端批改失敗：' + err.message };
+    }
+  }
+
+  async function pullCloudProgress() {
+    if (!state.cfg.gasUrl || !state.user || !state.user.email) return;
+    try {
+      const url = state.cfg.gasUrl + (state.cfg.gasUrl.includes('?') ? '&' : '?') + 'email=' + encodeURIComponent(state.user.email);
+      const resp = await fetch(url, { redirect: 'follow' });
+      const res = await resp.json();
+      if (res && res.ok && res.found) {
+        (res.solved || []).forEach(id => state.solved.add(id));
+        state.xp = Math.max(state.xp, Number(res.xp || 0));
+        state.sprintBest = Math.max(state.sprintBest, Number(res.sprintBest || 0));
+        saveLocal();
+        updateHeader();
+        renderHome();
+      }
+    } catch (e) {}
+  }
+
+  /* ---------------- GOOGLE IDENTITY LOGIN ---------------- */
+  function parseJwt(token) {
+    try {
+      const base64 = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
+      return JSON.parse(decodeURIComponent(atob(base64).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join('')));
+    } catch (e) { return null; }
+  }
+
+  function initGoogleSignIn() {
+    const slot = document.getElementById('gsi-btn-slot');
+    if (!slot) return;
+    slot.innerHTML = '';
+    if (window.google && google.accounts && google.accounts.id && state.cfg.clientId) {
+      try {
+        google.accounts.id.initialize({
+          client_id: state.cfg.clientId,
+          callback: (resp) => {
+            const p = parseJwt(resp.credential);
+            if (p && p.email) {
+              state.user = { email: p.email, name: p.name || p.email.split('@')[0] };
+              saveLocal();
+              closeLoginModal();
+              updateHeader();
+              pullCloudProgress();
+              showToast('歡迎回來，' + state.user.name + '！進度已連線雲端。');
+            }
+          }
+        });
+        google.accounts.id.renderButton(slot, { theme: 'filled_black', size: 'large', width: 320, text: 'signin_with' });
+      } catch (e) {
+        slot.innerHTML = '<div style="font-size:12.5px;color:var(--ink-muted)">Google 登入按鈕載入中，或請使用下方電郵登入。</div>';
+      }
+    } else {
+      slot.innerHTML = '<div style="font-size:12.5px;color:var(--ink-muted)">提示：部署至 GitHub Pages 並填入 Client ID 後會顯示 Google 一鍵登入按鈕。</div>';
+    }
+  }
+
+  function openLoginModal() {
+    const m = document.getElementById('login-modal');
+    m.classList.remove('hidden');
+    initGoogleSignIn();
+  }
+  function closeLoginModal() {
+    document.getElementById('login-modal').classList.add('hidden');
+  }
+
+  function manualEmailLogin() {
+    const email = (document.getElementById('manual-email').value || '').trim();
+    const name = (document.getElementById('manual-name').value || '').trim();
+    if (!email || !email.includes('@')) {
+      showToast('請輸入有效的學校 Gmail 地址。');
+      return;
+    }
+    state.user = { email, name: name || email.split('@')[0] };
+    saveLocal();
+    closeLoginModal();
+    updateHeader();
+    pullCloudProgress();
+    showToast('已以 ' + state.user.name + ' 登入。');
+  }
+
+  function signOut() {
+    state.user = null;
+    saveLocal();
+    updateHeader();
+    openLoginModal();
+  }
+
+  /* ---------------- TEACHER HIDDEN CONFIG MODAL (5-TAP / CTRL+SHIFT+T) ---------------- */
+  let tapCount = 0, tapTimer = null;
+  function onBrandClick() {
+    tapCount++;
+    clearTimeout(tapTimer);
+    tapTimer = setTimeout(() => { tapCount = 0; }, 1200);
+    if (tapCount >= 5) {
+      tapCount = 0;
+      openTeacherModal();
+    } else {
+      switchView('home');
+    }
+  }
+  document.addEventListener('keydown', (e) => {
+    if (e.ctrlKey && e.shiftKey && e.key.toUpperCase() === 'T') {
+      e.preventDefault();
+      openTeacherModal();
+    }
+  });
+  function openTeacherModal() {
+    document.getElementById('cfg-gas-url').value = state.cfg.gasUrl || '';
+    document.getElementById('cfg-client-id').value = state.cfg.clientId || '';
+    document.getElementById('teacher-modal').classList.remove('hidden');
+  }
+  function saveTeacherCfg() {
+    state.cfg.gasUrl = (document.getElementById('cfg-gas-url').value || '').trim();
+    state.cfg.clientId = (document.getElementById('cfg-client-id').value || '').trim();
+    saveCfg();
+    document.getElementById('teacher-modal').classList.add('hidden');
+    showToast('老師雲端設定已儲存！');
+    if (state.user) pullCloudProgress();
+  }
+
+  /* ---------------- HEADER & VIEW ROUTING ---------------- */
+  function updateHeader() {
+    document.getElementById('hdr-xp').textContent = state.xp + ' XP';
+    document.getElementById('hdr-solved').textContent = state.solved.size + '/' + (LEVELS.length + DSE_PAPERS.length);
+    const pill = document.getElementById('user-pill');
+    if (state.user) {
+      pill.innerHTML = `<span class="user-dot"></span><span>${esc(state.user.name)}</span>`;
+    } else {
+      pill.innerHTML = `<span class="user-dot offline"></span><span>登入 Gmail</span>`;
+    }
+  }
+
+  function switchView(name) {
+    state.view = name;
+    document.querySelectorAll('.view').forEach(v => v.classList.toggle('active', v.id === 'view-' + name));
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.toggle('active', b.dataset.view === name));
+    if (name === 'home') renderHome();
+    if (name === 'quest') renderQuest();
+    if (name === 'dse') renderDse();
+    if (name === 'viz') renderViz();
+    if (name === 'sprint') initSprintView();
+    if (name === 'sandbox') initSandbox();
+  }
+
+  function esc(s) {
+    return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+
+  /* ---------------- INTERACTIVE EXCEL GRID COMPONENT ---------------- */
+  function mountExcelGrid(container, opts) {
+    const sheet = opts.sheet;
+    const targetCell = (opts.targetCell || 'A1').toUpperCase();
+    const fillCell = opts.fillCell ? opts.fillCell.toUpperCase() : null;
+    const targetSet = new Set(fillCell ? XL.expandRange(targetCell, fillCell) : (opts.targetCell ? [targetCell] : []));
+    const readOnly = !!opts.readOnly;
+    const srcCell = opts.srcCell ? opts.srcCell.toUpperCase() : null;
+    const dstCell = opts.dstCell ? opts.dstCell.toUpperCase() : null;
+
+    let selected = targetCell;
+    let showF = false;
+    let fillArmed = false;
+    let isDraggingFill = false;
+    let fillPreviewSet = new Set();
+    let isPointing = false;
+    let pointStart = null;
+
+    container.innerHTML = `
+      <div class="xl-wrap">
+        <div class="xl-fbar">
+          <div class="xl-cell-box" data-role="addr">${selected}</div>
+          <span class="xl-fx-lbl">fx</span>
+          <div class="xl-input-wrap">
+            <input class="xl-input" data-role="inp" type="text" autocomplete="off" spellcheck="false" ${readOnly ? 'readonly' : ''} placeholder="${readOnly ? '檢視模式' : '輸入以 = 開頭的公式，或點選儲存格插入參照…'}" />
+          </div>
+          ${readOnly ? '' : `
+            <button class="btn btn-sm" data-role="f4" title="切換 $ 鎖定 (F4)">F4 鎖$</button>
+            <button class="btn btn-sm" data-role="togglef" title="切換顯示公式">顯示公式</button>
+          `}
+        </div>
+        <div class="xl-preview-strip">
+          <div data-role="hl"></div>
+          <div data-role="val" style="color:var(--ink-muted)"></div>
+        </div>
+        <div class="xl-scroll">
+          <table class="xl-table" data-role="tbl"></table>
+        </div>
+        ${readOnly ? '' : `
+          <div class="xl-keypad" data-role="kp">
+            ${['=', 'SUM(', 'AVERAGE(', 'MAX(', 'MIN(', 'COUNT(', 'COUNTIF(', 'SUMIF(', 'IF(', 'AND(', 'OR(', 'VLOOKUP(', 'RANK(', 'LEFT(', 'MID(', 'RIGHT(', ':', ',', '"', '(', ')', '$'].map(k =>
+              `<button type="button" class="kp-btn ${k === '=' || k === '$' ? 'kp-accent' : ''}" data-ins="${esc(k)}">${esc(k)}</button>`
+            ).join('')}
+          </div>
+        `}
+      </div>
+    `;
+
+    const addrEl = container.querySelector('[data-role="addr"]');
+    const inpEl = container.querySelector('[data-role="inp"]');
+    const hlEl = container.querySelector('[data-role="hl"]');
+    const valEl = container.querySelector('[data-role="val"]');
+    const tblEl = container.querySelector('[data-role="tbl"]');
+
+    if (!readOnly && opts.blockPaste !== false) blockPaste(inpEl);
+
+    function syncBar() {
+      addrEl.textContent = selected;
+      const raw = sheet.get(selected);
+      if (document.activeElement !== inpEl) {
+        inpEl.value = raw === undefined || raw === null ? '' : String(raw);
+      }
+      const curStr = inpEl.value;
+      hlEl.innerHTML = curStr ? XL.highlightFormula(curStr) : '<span style="color:var(--ink-dim)">（空白儲存格）</span>';
+      const evalRes = sheet.val(selected);
+      valEl.innerHTML = `計算值：<strong style="color:${XL.isErr(evalRes) ? 'var(--rust-400)' : 'var(--amber-300)'}">${esc(XL.fmtVal(evalRes, sheet.fmts[selected])) || '—'}</strong>`;
+    }
+
+    function insertTextAtCursor(txt) {
+      if (readOnly) return;
+      const s = inpEl.selectionStart != null ? inpEl.selectionStart : inpEl.value.length;
+      const e = inpEl.selectionEnd != null ? inpEl.selectionEnd : inpEl.value.length;
+      inpEl.value = inpEl.value.slice(0, s) + txt + inpEl.value.slice(e);
+      inpEl.focus();
+      inpEl.setSelectionRange(s + txt.length, s + txt.length);
+      sheet.set(selected, inpEl.value);
+      syncBar();
+      renderTable();
+    }
+
+    function applyF4() {
+      if (readOnly) return;
+      const val = inpEl.value;
+      const pos = inpEl.selectionStart != null ? inpEl.selectionStart : val.length;
+      const re = /\$?[A-Z]+\$?\d+/gi;
+      let m, targetMatch = null;
+      while ((m = re.exec(val)) !== null) {
+        if (pos >= m.index && pos <= m.index + m[0].length) {
+          targetMatch = m;
+          break;
+        }
+      }
+      if (!targetMatch) return;
+      const cycled = XL.cycleDollar(targetMatch[0]);
+      inpEl.value = val.slice(0, targetMatch.index) + cycled + val.slice(targetMatch.index + targetMatch[0].length);
+      sheet.set(selected, inpEl.value);
+      inpEl.focus();
+      inpEl.setSelectionRange(targetMatch.index, targetMatch.index + cycled.length);
+      syncBar();
+      renderTable();
+    }
+
+    function renderTable() {
+      let html = '<thead><tr><th class="row-hdr"></th>';
+      for (let c = 0; c < sheet.c; c++) {
+        const colL = XL.fromCol(c);
+        const w = sheet.w[colL] ? `style="min-width:${sheet.w[colL]}px"` : '';
+        html += `<th ${w}>${colL}</th>`;
+      }
+      html += '</tr></thead><tbody>';
+
+      for (let r = 0; r < sheet.r; r++) {
+        html += `<tr><th class="row-hdr">${r + 1}</th>`;
+        for (let c = 0; c < sheet.c; c++) {
+          const k = XL.key(c, r);
+          const v = sheet.val(k);
+          const disp = sheet.display(k, showF);
+          const st = sheet.st[k] || '';
+          const cls = [];
+          if (st === 'hdr') cls.push('st-hdr');
+          if (st === 'tot') cls.push('st-tot');
+          if (st === 'inp') cls.push('st-inp');
+          if (typeof v === 'number' && !showF) cls.push('is-num');
+          if (XL.isErr(v)) cls.push('is-err');
+          if (targetSet.has(k)) cls.push('is-target');
+          if (k === selected) cls.push('is-selected');
+          if (fillPreviewSet.has(k)) cls.push('is-fill-preview');
+          if (k === srcCell) cls.push('is-src');
+          if (k === dstCell) cls.push('is-dst');
+
+          const handle = (!readOnly && k === selected)
+            ? `<span class="xl-fill-handle ${fillArmed ? 'armed' : ''}" data-role="handle" title="拖曳或點選目標儲存格以填滿公式"></span>`
+            : '';
+          html += `<td data-cell="${k}" class="${cls.join(' ')}">${esc(disp)}${handle}</td>`;
+        }
+        html += '</tr>';
+      }
+      html += '</tbody>';
+      tblEl.innerHTML = html;
+    }
+
+    inpEl.addEventListener('input', () => {
+      if (readOnly) return;
+      sheet.set(selected, inpEl.value);
+      syncBar();
+      renderTable();
+    });
+
+    inpEl.addEventListener('keydown', (e) => {
+      if (e.key === 'F4') { e.preventDefault(); applyF4(); }
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        const p = XL.parseRef(selected);
+        if (p && p.r + 1 < sheet.r) {
+          selected = XL.key(p.c, p.r + 1);
+          inpEl.blur();
+          syncBar();
+          renderTable();
+        }
+      }
+    });
+
+    const f4Btn = container.querySelector('[data-role="f4"]');
+    if (f4Btn) f4Btn.addEventListener('click', applyF4);
+
+    const tfBtn = container.querySelector('[data-role="togglef"]');
+    if (tfBtn) {
+      tfBtn.addEventListener('click', () => {
+        showF = !showF;
+        tfBtn.classList.toggle('btn-copper', showF);
+        tfBtn.textContent = showF ? '顯示數值' : '顯示公式';
+        renderTable();
+      });
+    }
+
+    const kp = container.querySelector('[data-role="kp"]');
+    if (kp) {
+      kp.addEventListener('click', (e) => {
+        const btn = e.target.closest('[data-ins]');
+        if (!btn) return;
+        insertTextAtCursor(btn.dataset.ins);
+      });
+    }
+
+    // Table interactions: select, point-mode cell ref insertion, fill handle drag/tap
+    tblEl.addEventListener('mousedown', (e) => {
+      const handle = e.target.closest('[data-role="handle"]');
+      if (handle && !readOnly) {
+        e.preventDefault();
+        isDraggingFill = true;
+        fillArmed = !fillArmed;
+        fillPreviewSet = new Set([selected]);
+        renderTable();
+        return;
+      }
+      const td = e.target.closest('td[data-cell]');
+      if (!td) return;
+      const cellKey = td.dataset.cell;
+
+      // Tap-to-fill when armed
+      if (fillArmed && !readOnly && cellKey !== selected) {
+        sheet.fill(selected, cellKey);
+        fillArmed = false;
+        fillPreviewSet.clear();
+        syncBar();
+        renderTable();
+        showToast(`已將 ${selected} 公式填滿至 ${cellKey}`);
+        return;
+      }
+
+      // Point mode when editing a formula starting with '=' and last char is operator/delimiter
+      const curVal = inpEl.value;
+      const canPoint = !readOnly && curVal.startsWith('=') && /[=+\-*/^&(,<>:]$/.test(curVal.slice(0, inpEl.selectionStart || curVal.length));
+      if (canPoint) {
+        e.preventDefault();
+        isPointing = true;
+        pointStart = cellKey;
+        insertTextAtCursor(cellKey);
+        return;
+      }
+
+      selected = cellKey;
+      fillArmed = false;
+      inpEl.blur();
+      syncBar();
+      renderTable();
+    });
+
+    tblEl.addEventListener('mouseover', (e) => {
+      const td = e.target.closest('td[data-cell]');
+      if (!td) return;
+      const cellKey = td.dataset.cell;
+      if (isDraggingFill) {
+        fillPreviewSet = new Set(XL.expandRange(selected, cellKey));
+        renderTable();
+      } else if (isPointing && pointStart && cellKey !== pointStart) {
+        const rangeTxt = pointStart + ':' + cellKey;
+        const val = inpEl.value;
+        const re = new RegExp(pointStart + '(?::[A-Z]+\\d+)?$', 'i');
+        if (re.test(val)) {
+          inpEl.value = val.replace(re, rangeTxt);
+          sheet.set(selected, inpEl.value);
+          syncBar();
+          renderTable();
+        }
+      }
+    });
+
+    window.addEventListener('mouseup', () => {
+      if (isDraggingFill) {
+        isDraggingFill = false;
+        if (fillPreviewSet.size > 1) {
+          const arr = Array.from(fillPreviewSet);
+          const last = arr[arr.length - 1];
+          sheet.fill(selected, last);
+          fillArmed = false;
+          fillPreviewSet.clear();
+          syncBar();
+          renderTable();
+          showToast(`已將 ${selected} 公式填滿至 ${last}`);
+        }
+      }
+      isPointing = false;
+      pointStart = null;
+    });
+
+    syncBar();
+    renderTable();
+    return { sheet, refresh: () => { syncBar(); renderTable(); } };
+  }
+
+  /* ---------------- HOME VIEW ---------------- */
+  function renderHome() {
+    const chSolved = LEVELS.filter(l => state.solved.has(l.id)).length;
+    const dseSolved = DSE_PAPERS.filter(q => state.solved.has(q.id)).length;
+    document.getElementById('stat-ch').textContent = `${chSolved}/${LEVELS.length}`;
+    document.getElementById('stat-dse').textContent = `${dseSolved}/${DSE_PAPERS.length}`;
+    document.getElementById('stat-xp').textContent = String(state.xp);
+    document.getElementById('stat-sprint').textContent = String(state.sprintBest);
+
+    const grid = document.getElementById('home-chapter-grid');
+    grid.innerHTML = CHAPTERS.map(ch => {
+      const lvs = LEVELS.filter(l => l.ch === ch.ch);
+      const done = lvs.filter(l => state.solved.has(l.id)).length;
+      const pct = Math.round((done / lvs.length) * 100);
+      return `
+        <div class="ch-card" onclick="APP.openChapter(${ch.ch})">
+          <div class="ch-top">
+            <span class="ch-code">${esc(ch.code)}</span>
+            <span class="ch-prog-txt">${done}/${lvs.length} 關</span>
+          </div>
+          <div class="ch-title">${esc(ch.title)}</div>
+          <div class="ch-ref">${esc(ch.ref)}</div>
+          <div class="prog-track"><div class="prog-fill" style="width:${pct}%"></div></div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  function openChapter(chNum) {
+    state.openChapters.add(chNum);
+    const first = LEVELS.find(l => l.ch === chNum && !state.solved.has(l.id)) || LEVELS.find(l => l.ch === chNum);
+    if (first) state.activeLevelId = first.id;
+    switchView('quest');
+  }
+
+  /* ---------------- QUEST WORKBENCH (8 CHAPTERS / 48 LEVELS) ---------------- */
+  let currentQuestSheet = null;
+  let currentMcChoice = null;
+
+  function renderQuest() {
+    // Rail
+    const rail = document.getElementById('quest-rail-body');
+    rail.innerHTML = CHAPTERS.map(ch => {
+      const lvs = LEVELS.filter(l => l.ch === ch.ch);
+      const done = lvs.filter(l => state.solved.has(l.id)).length;
+      const isOpen = state.openChapters.has(ch.ch);
+      return `
+        <div class="ch-group">
+          <button class="ch-group-btn" onclick="APP.toggleChapter(${ch.ch})">
+            <span>${esc(ch.code)} ${esc(ch.title)}</span>
+            <span class="mono" style="font-size:11px;color:var(--amber-400)">${done}/${lvs.length}</span>
+          </button>
+          ${isOpen ? `<div class="ch-group-items">
+            ${lvs.map(l => {
+              const solved = state.solved.has(l.id);
+              const active = l.id === state.activeLevelId;
+              const diffCls = l.diff === 'easy' ? 'diff-easy' : (l.diff === 'hard' ? 'diff-hard' : 'diff-medium');
+              const diffLbl = l.diff === 'easy' ? '基礎' : (l.diff === 'hard' ? '困難' : '進階');
+              return `
+                <button class="lv-item ${active ? 'active' : ''}" onclick="APP.selectLevel('${l.id}')">
+                  <span class="lv-status ${solved ? 'done' : ''}">${solved ? '✓' : ''}</span>
+                  <span class="lv-title-txt">${esc(l.id)} ${esc(l.title)}</span>
+                  <span class="diff-tag ${diffCls}">${diffLbl}</span>
+                </button>
+              `;
+            }).join('')}
+          </div>` : ''}
+        </div>
+      `;
+    }).join('');
+
+    const lv = LEVELS.find(l => l.id === state.activeLevelId) || LEVELS[0];
+    const ch = CHAPTERS.find(c => c.ch === lv.ch);
+    const stage = document.getElementById('quest-stage');
+    currentMcChoice = null;
+
+    const solved = state.solved.has(lv.id);
+    let bodyHtml = '';
+
+    if (lv.type === 'formula') {
+      bodyHtml = `
+        <div id="quest-grid-host"></div>
+        <div style="font-size:12.5px;color:var(--ink-muted);margin-bottom:10px">
+          操作提示：點擊目標格 <strong style="color:var(--amber-300)">${esc(lv.cell)}</strong> 輸入公式${lv.fill ? `，再用右下角琥珀色填滿控點複製至 <strong style="color:var(--amber-300)">${esc(lv.fill)}</strong>` : ''}；在公式輸入時點選儲存格可直接插入參照。
+        </div>
+      `;
+    } else if (lv.type === 'predict') {
+      bodyHtml = `
+        <div id="quest-grid-host"></div>
+        <div class="predict-bar">
+          <span class="badge badge-copper">原公式 ${esc(lv.src)}：${esc(lv.srcF)}</span>
+          <span style="color:var(--amber-400);font-weight:700">→ 複製到 ${esc(lv.dst)}：</span>
+          <input id="quest-predict-inp" class="predict-input" type="text" autocomplete="off" spellcheck="false" placeholder="輸入 ${esc(lv.dst)} 的新公式（例如 =B3*$F$1）" />
+        </div>
+      `;
+    } else if (lv.type === 'mc') {
+      const letters = ['A', 'B', 'C', 'D'];
+      bodyHtml = `
+        <div class="mc-list" id="quest-mc-list">
+          ${lv.opts.map((o, i) => `
+            <button type="button" class="mc-opt" data-idx="${i}" onclick="APP.pickQuestMc(${i})">
+              <span class="mc-letter">${letters[i]}</span>
+              <span>${esc(o.t)}</span>
+            </button>
+          `).join('')}
+        </div>
+      `;
+    }
+
+    stage.innerHTML = `
+      <details class="notes-box">
+        <summary class="notes-summary"><span>${esc(ch.code)} 課程重點筆記：${esc(ch.title)}</span><span>展開 / 收合</span></summary>
+        <ul class="notes-list">${ch.notes.map(n => `<li>${esc(n)}</li>`).join('')}</ul>
+      </details>
+
+      <div class="q-meta">
+        <span class="badge badge-amber">${esc(lv.id)}</span>
+        <span class="badge badge-copper">${esc(lv.typeLabel)}</span>
+        <span class="badge">+${lv.xp} XP</span>
+        ${lv.cell ? `<span class="badge">目標：${esc(lv.cell)}${lv.fill ? ' → ' + esc(lv.fill) : ''}</span>` : ''}
+        ${solved ? '<span class="badge badge-amber">已通過</span>' : ''}
+      </div>
+
+      <h2 class="q-title">${esc(lv.title)}</h2>
+      <p class="q-prompt">${esc(lv.prompt)}</p>
+
+      ${bodyHtml}
+
+      <div class="action-row">
+        <div class="action-group">
+          <button class="btn btn-primary" id="quest-submit-btn" onclick="APP.submitQuest()">雲端核對答案</button>
+          ${lv.hint ? `<button class="btn" onclick="APP.showQuestHint()">顯示提示</button>` : ''}
+          ${lv.type === 'formula' ? `<button class="btn btn-ghost" onclick="APP.renderQuest()">重設表格</button>` : ''}
+          <button class="btn btn-ghost" onclick="APP.revealCloudSolution('${lv.id}', 'quest-feedback')">查閱官方解說</button>
+        </div>
+        <div class="action-group">
+          <button class="btn btn-sm" onclick="APP.stepLevel(-1)">上一關</button>
+          <button class="btn btn-sm" onclick="APP.stepLevel(1)">下一關</button>
+        </div>
+      </div>
+
+      <div id="quest-feedback"></div>
+    `;
+
+    if (lv.type === 'formula') {
+      currentQuestSheet = new XL.Sheet(lv.sheet);
+      mountExcelGrid(document.getElementById('quest-grid-host'), {
+        sheet: currentQuestSheet,
+        targetCell: lv.cell,
+        fillCell: lv.fill
+      });
+    } else if (lv.type === 'predict') {
+      currentQuestSheet = new XL.Sheet(lv.sheet);
+      mountExcelGrid(document.getElementById('quest-grid-host'), {
+        sheet: currentQuestSheet,
+        targetCell: lv.dst,
+        srcCell: lv.src,
+        dstCell: lv.dst,
+        readOnly: true
+      });
+      blockPaste(document.getElementById('quest-predict-inp'));
+    }
+  }
+
+  function toggleChapter(chNum) {
+    if (state.openChapters.has(chNum)) state.openChapters.delete(chNum);
+    else state.openChapters.add(chNum);
+    renderQuest();
+  }
+
+  function selectLevel(id) {
+    state.activeLevelId = id;
+    renderQuest();
+  }
+
+  function stepLevel(delta) {
+    const idx = LEVELS.findIndex(l => l.id === state.activeLevelId);
+    const next = LEVELS[idx + delta];
+    if (next) {
+      state.openChapters.add(next.ch);
+      state.activeLevelId = next.id;
+      renderQuest();
+    }
+  }
+
+  function pickQuestMc(idx) {
+    currentMcChoice = idx;
+    document.querySelectorAll('#quest-mc-list .mc-opt').forEach((el, i) => {
+      el.classList.toggle('selected', i === idx);
+    });
+  }
+
+  function showQuestHint() {
+    const lv = LEVELS.find(l => l.id === state.activeLevelId);
+    if (!lv || !lv.hint) return;
+    document.getElementById('quest-feedback').innerHTML = `<div class="feedback info"><strong>解題提示：</strong>${esc(lv.hint)}</div>`;
+  }
+
+  async function submitQuest() {
+    if (!state.user) { openLoginModal(); return; }
+    const lv = LEVELS.find(l => l.id === state.activeLevelId);
+    const fb = document.getElementById('quest-feedback');
+    const btn = document.getElementById('quest-submit-btn');
+    let payload = { action: 'grade', qid: lv.id };
+
+    if (lv.type === 'formula') {
+      const vec = XL.computeTestVectors(lv.sheet, lv.cell, lv.fill, lv.rand || [], currentQuestSheet);
+      payload.userFormula = vec.formulas[0] || '';
+      payload.formulas = vec.formulas;
+      payload.vectors = vec.vectors;
+    } else if (lv.type === 'predict') {
+      const val = (document.getElementById('quest-predict-inp').value || '').trim();
+      if (!val) { fb.innerHTML = '<div class="feedback err">請先輸入預測公式。</div>'; return; }
+      payload.answer = val;
+    } else if (lv.type === 'mc') {
+      if (currentMcChoice === null) { fb.innerHTML = '<div class="feedback err">請先點選一個選項。</div>'; return; }
+      payload.choice = currentMcChoice;
+    }
+
+    btn.disabled = true;
+    btn.textContent = '雲端批改中…';
+    const res = await callGasPost(payload);
+    btn.disabled = false;
+    btn.textContent = '雲端核對答案';
+
+    if (!res.ok) {
+      fb.innerHTML = `<div class="feedback err">${esc(res.error || '批改失敗')}</div>`;
+      return;
+    }
+    if (res.passed) {
+      if (!state.solved.has(lv.id)) {
+        state.solved.add(lv.id);
+        state.xp += lv.xp;
+        saveLocal();
+        updateHeader();
+      }
+      fb.innerHTML = `
+        <div class="feedback ok">
+          <strong>通關成功！（+${lv.xp} XP）</strong> ${esc(res.feedback || '')}
+          ${res.officialAnswer ? `<div class="mono" style="margin-top:6px">參考公式：${esc(res.officialAnswer)}</div>` : ''}
+          ${res.explain ? `<div style="margin-top:6px;color:var(--ink-primary)">解析：${esc(res.explain)}</div>` : ''}
+        </div>
+      `;
+      // Refresh rail checkmarks without resetting grid
+      const railDone = document.querySelector(`.lv-item.active .lv-status`);
+      if (railDone) { railDone.classList.add('done'); railDone.textContent = '✓'; }
+    } else {
+      fb.innerHTML = `<div class="feedback err"><strong>未通過：</strong>${esc(res.feedback || '答案有誤，請再試。')}</div>`;
+    }
+  }
+
+  async function revealCloudSolution(qid, fbId) {
+    if (!state.user) { openLoginModal(); return; }
+    const fb = document.getElementById(fbId);
+    fb.innerHTML = '<div class="feedback info">正在向雲端答案庫提取官方解說…</div>';
+    const res = await callGasPost({ action: 'reveal_solution', qid });
+    if (!res.ok) {
+      fb.innerHTML = `<div class="feedback err">${esc(res.error || '無法取得解說')}</div>`;
+      return;
+    }
+    fb.innerHTML = `
+      <div class="feedback info">
+        <strong>官方參考答案（已記錄查閱）：</strong>
+        <div class="mono" style="margin:6px 0;color:var(--amber-300);font-size:14px">${esc(res.officialAnswer)}</div>
+        <div>${esc(res.explain || '')}</div>
+      </div>
+    `;
+  }
+
+  /* ---------------- DSE WORKBENCH (12 QUESTIONS) ---------------- */
+  let currentDseSheet = null;
+  let currentDseMc = null;
+
+  function renderDse() {
+    const topics = ['全部', ...Array.from(new Set(DSE_PAPERS.map(q => q.topic)))];
+    const filterBar = document.getElementById('dse-filter-bar');
+    filterBar.innerHTML = topics.map(t =>
+      `<button class="btn btn-sm ${state.dseFilter === t ? 'btn-copper' : ''}" onclick="APP.setDseFilter('${esc(t)}')">${esc(t)}</button>`
+    ).join('');
+
+    const filtered = state.dseFilter === '全部' ? DSE_PAPERS : DSE_PAPERS.filter(q => q.topic === state.dseFilter);
+    const rail = document.getElementById('dse-rail-body');
+    rail.innerHTML = filtered.map(q => {
+      const solved = state.solved.has(q.id);
+      const active = q.id === state.activeDseId;
+      return `
+        <button class="lv-item ${active ? 'active' : ''}" onclick="APP.selectDse('${q.id}')">
+          <span class="lv-status ${solved ? 'done' : ''}">${solved ? '✓' : ''}</span>
+          <span class="lv-title-txt">${esc(q.year)} · ${esc(q.title)}</span>
+        </button>
+      `;
+    }).join('');
+
+    const q = DSE_PAPERS.find(x => x.id === state.activeDseId) || filtered[0] || DSE_PAPERS[0];
+    state.activeDseId = q.id;
+    currentDseMc = null;
+    const solved = state.solved.has(q.id);
+
+    let bodyHtml = '';
+    if (q.mode === 'formula') {
+      bodyHtml = `<div id="dse-grid-host"></div>`;
+    } else if (q.mode === 'predict') {
+      bodyHtml = `
+        <div id="dse-grid-host"></div>
+        <div class="predict-bar">
+          <span class="badge badge-copper">原公式 ${esc(q.src)}：${esc(q.srcF)}</span>
+          <span style="color:var(--amber-400);font-weight:700">→ 複製到 ${esc(q.dst)}：</span>
+          <input id="dse-predict-inp" class="predict-input" type="text" autocomplete="off" spellcheck="false" placeholder="輸入 ${esc(q.dst)} 的公式" />
+        </div>
+      `;
+    } else {
+      const letters = ['A', 'B', 'C', 'D'];
+      bodyHtml = `
+        <div class="mc-list" id="dse-mc-list">
+          ${q.opts.map((o, i) => `
+            <button type="button" class="mc-opt" onclick="APP.pickDseMc(${i})">
+              <span class="mc-letter">${letters[i]}</span>
+              <span>${esc(o.t)}</span>
+            </button>
+          `).join('')}
+        </div>
+      `;
+    }
+
+    document.getElementById('dse-stage').innerHTML = `
+      <div class="q-meta">
+        <span class="badge badge-amber">${esc(q.id)}</span>
+        <span class="badge badge-copper">${esc(q.year)}</span>
+        <span class="badge">${esc(q.topic)}</span>
+        ${q.cell ? `<span class="badge">目標：${esc(q.cell)}${q.fill ? ' → ' + esc(q.fill) : ''}</span>` : ''}
+        ${solved ? '<span class="badge badge-amber">已通過</span>' : ''}
+      </div>
+      <h2 class="q-title">${esc(q.title)}</h2>
+      <p class="q-prompt">${esc(q.prompt)}</p>
+      ${bodyHtml}
+      <div class="action-row">
+        <div class="action-group">
+          <button class="btn btn-primary" id="dse-submit-btn" onclick="APP.submitDse()">雲端批改 DSE 答案</button>
+          ${q.mode === 'formula' ? `<button class="btn btn-ghost" onclick="APP.renderDse()">重設表格</button>` : ''}
+          <button class="btn btn-ghost" onclick="APP.revealCloudSolution('${q.id}', 'dse-feedback')">查閱評卷參考</button>
+        </div>
+      </div>
+      <div id="dse-feedback"></div>
+    `;
+
+    if (q.mode === 'formula') {
+      currentDseSheet = new XL.Sheet(q.sheet);
+      mountExcelGrid(document.getElementById('dse-grid-host'), {
+        sheet: currentDseSheet,
+        targetCell: q.cell,
+        fillCell: q.fill
+      });
+    } else if (q.mode === 'predict') {
+      currentDseSheet = new XL.Sheet(q.sheet);
+      mountExcelGrid(document.getElementById('dse-grid-host'), {
+        sheet: currentDseSheet,
+        targetCell: q.dst,
+        srcCell: q.src,
+        dstCell: q.dst,
+        readOnly: true
+      });
+      blockPaste(document.getElementById('dse-predict-inp'));
+    }
+  }
+
+  function setDseFilter(t) { state.dseFilter = t; renderDse(); }
+  function selectDse(id) { state.activeDseId = id; renderDse(); }
+  function pickDseMc(idx) {
+    currentDseMc = idx;
+    document.querySelectorAll('#dse-mc-list .mc-opt').forEach((el, i) => el.classList.toggle('selected', i === idx));
+  }
+
+  async function submitDse() {
+    if (!state.user) { openLoginModal(); return; }
+    const q = DSE_PAPERS.find(x => x.id === state.activeDseId);
+    const fb = document.getElementById('dse-feedback');
+    const btn = document.getElementById('dse-submit-btn');
+    let payload = { action: 'grade', qid: q.id };
+
+    if (q.mode === 'formula') {
+      const vec = XL.computeTestVectors(q.sheet, q.cell, q.fill, q.rand || [], currentDseSheet);
+      payload.userFormula = vec.formulas[0] || '';
+      payload.formulas = vec.formulas;
+      payload.vectors = vec.vectors;
+    } else if (q.mode === 'predict') {
+      const val = (document.getElementById('dse-predict-inp').value || '').trim();
+      if (!val) { fb.innerHTML = '<div class="feedback err">請先輸入公式。</div>'; return; }
+      payload.answer = val;
+    } else {
+      if (currentDseMc === null) { fb.innerHTML = '<div class="feedback err">請先選擇答案。</div>'; return; }
+      payload.choice = currentDseMc;
+    }
+
+    btn.disabled = true;
+    btn.textContent = '雲端批改中…';
+    const res = await callGasPost(payload);
+    btn.disabled = false;
+    btn.textContent = '雲端批改 DSE 答案';
+
+    if (!res.ok) { fb.innerHTML = `<div class="feedback err">${esc(res.error || '批改失敗')}</div>`; return; }
+    if (res.passed) {
+      if (!state.solved.has(q.id)) {
+        state.solved.add(q.id);
+        state.xp += 40;
+        saveLocal();
+        updateHeader();
+      }
+      fb.innerHTML = `
+        <div class="feedback ok">
+          <strong>DSE 實戰通過！（+40 XP）</strong>
+          ${res.officialAnswer ? `<div class="mono" style="margin-top:6px">評卷參考公式：${esc(res.officialAnswer)}</div>` : ''}
+          ${res.explain ? `<div style="margin-top:6px;color:var(--ink-primary)">解說：${esc(res.explain)}</div>` : ''}
+        </div>
+      `;
+    } else {
+      fb.innerHTML = `<div class="feedback err"><strong>未通過：</strong>${esc(res.feedback || '請再檢查公式。')}</div>`;
+    }
+  }
+
+  /* ---------------- 5-MODE INTERACTIVE EXCEL VISUALIZER STUDIO ---------------- */
+  const vizState = {
+    refType: '$A$1', refTarget: 'C4',
+    score: 76, attend: 88, logicOp: 'AND',
+    vlVal: 'P03', vlMode: 'exact', vlStep: 0,
+    cfCrit: '>500', cfMode: 'COUNTIF',
+    pvRow: 'branch', pvAgg: 'SUM'
+  };
+
+  function setVizMode(m) { state.vizMode = m; renderViz(); }
+
+  function renderViz() {
+    document.querySelectorAll('.viz-tab').forEach(b => b.classList.toggle('active', b.dataset.mode === state.vizMode));
+    const host = document.getElementById('viz-stage');
+
+    if (state.vizMode === 'ref') {
+      const src = 'B2';
+      const pSrc = XL.parseRef(src), pDst = XL.parseRef(vizState.refTarget);
+      const dc = pDst.c - pSrc.c, dr = pDst.r - pSrc.r;
+      const shifted = XL.shift('=' + vizState.refType, dc, dr);
+      let tbl = '<table class="xl-table" style="width:100%"><thead><tr><th class="row-hdr"></th><th>A</th><th>B</th><th>C</th><th>D</th><th>E</th></tr></thead><tbody>';
+      for (let r = 0; r < 5; r++) {
+        tbl += `<tr><th class="row-hdr">${r + 1}</th>`;
+        for (let c = 0; c < 5; c++) {
+          const k = XL.key(c, r);
+          const isSrc = k === src;
+          const isDst = k === vizState.refTarget;
+          const cls = isSrc ? 'is-src' : (isDst ? 'is-dst' : '');
+          const txt = isSrc ? ('=' + vizState.refType) : (isDst ? shifted : '');
+          tbl += `<td class="${cls}" style="text-align:center;cursor:pointer" onclick="APP.setVizRefTarget('${k}')">${esc(txt)}</td>`;
+        }
+        tbl += '</tr>';
+      }
+      tbl += '</tbody></table>';
+      host.innerHTML = `
+        <div class="viz-grid-2">
+          <div>
+            <h3 style="margin:0 0 8px">模式 1：$ 絕對／混合參照複製追蹤</h3>
+            <p style="font-size:13.5px;color:var(--ink-secondary);margin:0 0 14px">在 B2 選擇鎖定類型，然後點擊右方表格任何一格作為貼上目標，即時觀察欄與列的平移變化。</p>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px">
+              ${['A1', '$A$1', 'A$1', '$A1'].map(t =>
+                `<button class="btn btn-sm ${vizState.refType === t ? 'btn-primary' : ''}" onclick="APP.setVizRefType('${t}')">=${t}</button>`
+              ).join('')}
+            </div>
+            <div class="feedback info">
+              <div>來源格 <strong class="mono">${src}</strong> → 目標格 <strong class="mono">${vizState.refTarget}</strong>（欄移動 <strong class="mono">${dc >= 0 ? '+' + dc : dc}</strong>，列移動 <strong class="mono">${dr >= 0 ? '+' + dr : dr}</strong>）</div>
+              <div style="margin-top:8px;font-size:16px" class="mono">結果公式：<strong style="color:var(--amber-300)">${esc(shifted)}</strong></div>
+            </div>
+          </div>
+          <div>${tbl}</div>
+        </div>
+      `;
+      return;
+    }
+
+    if (state.vizMode === 'logic') {
+      const c1 = vizState.score >= 60;
+      const c2 = vizState.attend >= 80;
+      const comb = vizState.logicOp === 'AND' ? (c1 && c2) : (c1 || c2);
+      const outTxt = comb ? '"合格頒獎"' : '"需重考"';
+      host.innerHTML = `
+        <div class="viz-grid-2">
+          <div>
+            <h3 style="margin:0 0 8px">模式 2：IF / AND / OR 互動邏輯樹</h3>
+            <p style="font-size:13.5px;color:var(--ink-secondary);margin:0 0 14px">拖動滑桿測試條件真假，觀察複合邏輯如何決定 IF 函數走向。</p>
+            <div class="mono" style="background:var(--bg-inset);padding:10px 12px;border-radius:8px;border:1px solid var(--amber-border);margin-bottom:14px;color:var(--amber-200)">
+              =IF(${vizState.logicOp}(B2>=60, C2>=80), "合格頒獎", "需重考")
+            </div>
+            <div style="display:flex;gap:8px;margin-bottom:14px">
+              <button class="btn btn-sm ${vizState.logicOp === 'AND' ? 'btn-primary' : ''}" onclick="APP.setVizLogic('op','AND')">AND（兩者皆真）</button>
+              <button class="btn btn-sm ${vizState.logicOp === 'OR' ? 'btn-primary' : ''}" onclick="APP.setVizLogic('op','OR')">OR（至少一真）</button>
+            </div>
+            <label class="field-lbl">B2 分數：${vizState.score}（條件 >= 60 → ${c1 ? 'TRUE' : 'FALSE'}）</label>
+            <input type="range" min="0" max="100" value="${vizState.score}" style="width:100%;accent-color:#f59e0b" oninput="APP.setVizLogic('score',this.value)" />
+            <label class="field-lbl">C2 出席率：${vizState.attend}%（條件 >= 80 → ${c2 ? 'TRUE' : 'FALSE'}）</label>
+            <input type="range" min="0" max="100" value="${vizState.attend}" style="width:100%;accent-color:#ea580c" oninput="APP.setVizLogic('attend',this.value)" />
+          </div>
+          <div>
+            <svg viewBox="0 0 420 250" style="width:100%;height:auto;background:var(--bg-inset);border:1px solid var(--line-strong);border-radius:10px">
+              <line x1="115" y1="55" x2="210" y2="112" stroke="${c1 ? '#fbbf24' : '#524335'}" stroke-width="3"/>
+              <line x1="305" y1="55" x2="210" y2="112" stroke="${c2 ? '#fbbf24' : '#524335'}" stroke-width="3"/>
+              <line x1="210" y1="145" x2="115" y2="200" stroke="${comb ? '#fbbf24' : '#524335'}" stroke-width="3.5"/>
+              <line x1="210" y1="145" x2="305" y2="200" stroke="${!comb ? '#f87171' : '#524335'}" stroke-width="3.5"/>
+              <rect x="35" y="20" width="160" height="40" rx="8" fill="#221b15" stroke="${c1 ? '#fbbf24' : '#6e5d4b'}" stroke-width="2"/>
+              <text x="115" y="45" text-anchor="middle" fill="#f5efe6" font-size="13" font-family="JetBrains Mono">B2>=60 : ${c1 ? 'TRUE' : 'FALSE'}</text>
+              <rect x="225" y="20" width="160" height="40" rx="8" fill="#221b15" stroke="${c2 ? '#fbbf24' : '#6e5d4b'}" stroke-width="2"/>
+              <text x="305" y="45" text-anchor="middle" fill="#f5efe6" font-size="13" font-family="JetBrains Mono">C2>=80 : ${c2 ? 'TRUE' : 'FALSE'}</text>
+              <rect x="130" y="106" width="160" height="42" rx="9" fill="#2b221a" stroke="${comb ? '#fbbf24' : '#ea580c'}" stroke-width="2.2"/>
+              <text x="210" y="132" text-anchor="middle" fill="#fde68a" font-size="14" font-weight="700" font-family="JetBrains Mono">${vizState.logicOp} → ${comb ? 'TRUE' : 'FALSE'}</text>
+              <rect x="35" y="190" width="160" height="42" rx="8" fill="${comb ? 'rgba(245,158,11,0.22)' : '#18130f'}" stroke="${comb ? '#fbbf24' : '#4a3d30'}" stroke-width="2"/>
+              <text x="115" y="216" text-anchor="middle" fill="${comb ? '#fde68a' : '#786550'}" font-size="13" font-weight="700">TRUE: "合格頒獎"</text>
+              <rect x="225" y="190" width="160" height="42" rx="8" fill="${!comb ? 'rgba(220,38,38,0.2)' : '#18130f'}" stroke="${!comb ? '#f87171' : '#4a3d30'}" stroke-width="2"/>
+              <text x="305" y="216" text-anchor="middle" fill="${!comb ? '#fecaca' : '#786550'}" font-size="13" font-weight="700">FALSE: "需重考"</text>
+            </svg>
+            <div class="feedback ok" style="margin-top:10px">最終回傳值：<strong class="mono">${outTxt}</strong></div>
+          </div>
+        </div>
+      `;
+      return;
+    }
+
+    if (state.vizMode === 'vlookup') {
+      const exactRows = [
+        ['P01', '無線滑鼠', 148],
+        ['P02', '機械鍵盤', 420],
+        ['P03', 'USB-C 集線器', 215],
+        ['P04', '外置硬碟', 580]
+      ];
+      const approxRows = [
+        [0, 'E', '不合格'],
+        [50, 'D', '合格'],
+        [65, 'C', '良好'],
+        [80, 'B', '優良'],
+        [90, 'A', '優異']
+      ];
+      const isExact = vizState.vlMode === 'exact';
+      const rows = isExact ? exactRows : approxRows;
+      let matchIdx = -1;
+      if (isExact) {
+        matchIdx = rows.findIndex(r => r[0] === vizState.vlVal);
+      } else {
+        const sc = Number(vizState.vlVal);
+        rows.forEach((r, i) => { if (r[0] <= sc) matchIdx = i; });
+      }
+      const formulaTxt = isExact
+        ? `=VLOOKUP("${vizState.vlVal}", $A$2:$C$5, 3, FALSE)`
+        : `=VLOOKUP(${vizState.vlVal}, $A$2:$C$6, 2, TRUE)`;
+      const resVal = matchIdx >= 0 ? (isExact ? ('$' + rows[matchIdx][2]) : rows[matchIdx][1]) : '#N/A';
+
+      host.innerHTML = `
+        <div class="viz-grid-2">
+          <div>
+            <h3 style="margin:0 0 8px">模式 3：VLOOKUP 垂直查表追蹤</h3>
+            <p style="font-size:13.5px;color:var(--ink-secondary);margin:0 0 12px">切換精確配對（FALSE）與區間近似配對（TRUE，首欄必須遞增排序），觀察掃描路徑。</p>
+            <div style="display:flex;gap:8px;margin-bottom:12px">
+              <button class="btn btn-sm ${isExact ? 'btn-primary' : ''}" onclick="APP.setVizVl('mode','exact')">FALSE 精確配對</button>
+              <button class="btn btn-sm ${!isExact ? 'btn-primary' : ''}" onclick="APP.setVizVl('mode','approx')">TRUE 區間配對</button>
+            </div>
+            <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px">
+              ${(isExact ? ['P01', 'P02', 'P03', 'P04', 'P99'] : ['42', '58', '74', '86', '95']).map(v =>
+                `<button class="btn btn-sm ${String(vizState.vlVal) === v ? 'btn-copper' : ''}" onclick="APP.setVizVl('val','${v}')">查 ${v}</button>`
+              ).join('')}
+            </div>
+            <div class="mono" style="background:var(--bg-inset);padding:10px 12px;border-radius:8px;border:1px solid var(--amber-border);color:var(--amber-200)">${esc(formulaTxt)}</div>
+            <div class="feedback ${matchIdx >= 0 ? 'ok' : 'err'}" style="margin-top:12px">
+              查表結果：<strong class="mono">${esc(resVal)}</strong>${matchIdx >= 0 ? `（先於第 1 欄鎖定第 ${matchIdx + 1} 列，再向右移至第 ${isExact ? 3 : 2} 欄取值）` : '（第 1 欄找不到相符值，回傳 #N/A）'}
+            </div>
+          </div>
+          <div>
+            <table class="xl-table" style="width:100%">
+              <thead><tr><th>第 1 欄 (搜尋欄)</th><th>第 2 欄</th><th>第 3 欄</th></tr></thead>
+              <tbody>
+                ${rows.map((r, i) => `
+                  <tr>
+                    <td class="${i === matchIdx ? 'is-src' : ''}">${esc(r[0])}</td>
+                    <td class="${i === matchIdx && !isExact ? 'is-selected' : ''}">${esc(r[1])}</td>
+                    <td class="${i === matchIdx && isExact ? 'is-selected' : ''}">${esc(r[2])}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      `;
+      return;
+    }
+
+    if (state.vizMode === 'cond') {
+      const sales = [
+        ['旺角店', '鍵盤', 420],
+        ['銅鑼灣', '耳機', 680],
+        ['旺角店', '滑鼠', 150],
+        ['尖沙咀', '螢幕', 1290],
+        ['銅鑼灣', '鍵盤', 560],
+        ['旺角店', '硬碟', 640]
+      ];
+      const crit = vizState.cfCrit;
+      const matches = sales.map(r => {
+        if (crit === '>500') return r[2] > 500;
+        if (crit === '<=500') return r[2] <= 500;
+        return r[0] === crit;
+      });
+      const cnt = matches.filter(Boolean).length;
+      const sum = sales.reduce((acc, r, i) => acc + (matches[i] ? r[2] : 0), 0);
+      const isSum = vizState.cfMode === 'SUMIF';
+      const fStr = crit.startsWith('>') || crit.startsWith('<')
+        ? (isSum ? `=SUMIF(C2:C7, "${crit}")` : `=COUNTIF(C2:C7, "${crit}")`)
+        : (isSum ? `=SUMIF(A2:A7, "${crit}", C2:C7)` : `=COUNTIF(A2:A7, "${crit}")`);
+
+      host.innerHTML = `
+        <div class="viz-grid-2">
+          <div>
+            <h3 style="margin:0 0 8px">模式 4：COUNTIF / SUMIF 條件掃描器</h3>
+            <p style="font-size:13.5px;color:var(--ink-secondary);margin:0 0 12px">選擇函數與條件，系統會逐列比對並將符合條件的資料以琥珀色標示。</p>
+            <div style="display:flex;gap:8px;margin-bottom:10px">
+              <button class="btn btn-sm ${!isSum ? 'btn-primary' : ''}" onclick="APP.setVizCond('mode','COUNTIF')">COUNTIF 計數</button>
+              <button class="btn btn-sm ${isSum ? 'btn-primary' : ''}" onclick="APP.setVizCond('mode','SUMIF')">SUMIF 條件加總</button>
+            </div>
+            <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px">
+              ${['>500', '<=500', '旺角店', '銅鑼灣'].map(c =>
+                `<button class="btn btn-sm ${crit === c ? 'btn-copper' : ''}" onclick="APP.setVizCond('crit','${c}')">條件 "${c}"</button>`
+              ).join('')}
+            </div>
+            <div class="mono" style="background:var(--bg-inset);padding:10px 12px;border-radius:8px;border:1px solid var(--amber-border);color:var(--amber-200)">${esc(fStr)}</div>
+            <div class="feedback ok" style="margin-top:12px">
+              符合列數：<strong>${cnt} 列</strong> ｜ ${isSum ? `條件加總結果：<strong class="mono">$${sum}</strong>` : `條件計數結果：<strong class="mono">${cnt}</strong>`}
+            </div>
+          </div>
+          <div>
+            <table class="xl-table" style="width:100%">
+              <thead><tr><th>A 分店</th><th>B 貨品</th><th>C 金額($)</th><th>符合？</th></tr></thead>
+              <tbody>
+                ${sales.map((r, i) => `
+                  <tr style="opacity:${matches[i] ? 1 : 0.42}">
+                    <td class="${matches[i] ? 'is-selected' : ''}">${r[0]}</td>
+                    <td class="${matches[i] ? 'is-selected' : ''}">${r[1]}</td>
+                    <td class="is-num ${matches[i] ? 'is-selected' : ''}">${r[2]}</td>
+                    <td style="text-align:center;color:${matches[i] ? 'var(--amber-300)' : 'var(--ink-dim)'}">${matches[i] ? '✓ 命中' : '—'}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      `;
+      return;
+    }
+
+    // Mode 5: Pivot Table
+    const rawSales = [
+      { branch: '九龍分店', cat: '電腦配件', amt: 420 },
+      { branch: '港島分店', cat: '顯示器', amt: 1280 },
+      { branch: '九龍分店', cat: '顯示器', amt: 980 },
+      { branch: '新界分店', cat: '電腦配件', amt: 310 },
+      { branch: '港島分店', cat: '電腦配件', amt: 540 },
+      { branch: '新界分店', cat: '儲存裝置', amt: 620 },
+      { branch: '九龍分店', cat: '儲存裝置', amt: 480 },
+      { branch: '港島分店', cat: '儲存裝置', amt: 760 }
+    ];
+    const groups = {};
+    rawSales.forEach(r => {
+      const k = r[vizState.pvRow];
+      if (!groups[k]) groups[k] = [];
+      groups[k].push(r.amt);
+    });
+    const pvRows = Object.entries(groups).map(([k, arr]) => {
+      const sum = arr.reduce((a, b) => a + b, 0);
+      const val = vizState.pvAgg === 'SUM' ? ('$' + sum) : (vizState.pvAgg === 'COUNT' ? (arr.length + ' 筆') : ('$' + (sum / arr.length).toFixed(1)));
+      return { k, val, cnt: arr.length, sum };
+    });
+
+    host.innerHTML = `
+      <div class="viz-grid-2">
+        <div>
+          <h3 style="margin:0 0 8px">模式 5：樞紐分析表（Pivot Table）互動重組</h3>
+          <p style="font-size:13.5px;color:var(--ink-secondary);margin:0 0 12px">DSE 必考概念：樞紐分析表無需手寫公式即可按不同維度動態分組彙總大量數據。</p>
+          <div style="margin-bottom:10px">
+            <span class="field-lbl">列標籤（分組欄位）：</span>
+            <div style="display:flex;gap:8px;margin-top:4px">
+              <button class="btn btn-sm ${vizState.pvRow === 'branch' ? 'btn-primary' : ''}" onclick="APP.setVizPivot('row','branch')">按「分店」分組</button>
+              <button class="btn btn-sm ${vizState.pvRow === 'cat' ? 'btn-primary' : ''}" onclick="APP.setVizPivot('row','cat')">按「貨品類別」分組</button>
+            </div>
+          </div>
+          <div style="margin-bottom:14px">
+            <span class="field-lbl">值彙總方式：</span>
+            <div style="display:flex;gap:8px;margin-top:4px">
+              <button class="btn btn-sm ${vizState.pvAgg === 'SUM' ? 'btn-copper' : ''}" onclick="APP.setVizPivot('agg','SUM')">加總 (SUM)</button>
+              <button class="btn btn-sm ${vizState.pvAgg === 'COUNT' ? 'btn-copper' : ''}" onclick="APP.setVizPivot('agg','COUNT')">計數 (COUNT)</button>
+              <button class="btn btn-sm ${vizState.pvAgg === 'AVG' ? 'btn-copper' : ''}" onclick="APP.setVizPivot('agg','AVG')">平均 (AVERAGE)</button>
+            </div>
+          </div>
+          <table class="xl-table" style="width:100%">
+            <thead><tr><th>${vizState.pvRow === 'branch' ? '分店' : '貨品類別'}</th><th>${vizState.pvAgg} 彙總結果</th></tr></thead>
+            <tbody>
+              ${pvRows.map(r => `<tr><td class="st-hdr">${r.k}</td><td class="is-num is-selected">${r.val}</td></tr>`).join('')}
+            </tbody>
+          </table>
+        </div>
+        <div>
+          <div class="field-lbl" style="margin-top:0">原始銷售交易紀錄（8 筆）</div>
+          <table class="xl-table" style="width:100%">
+            <thead><tr><th>分店</th><th>貨品類別</th><th>金額($)</th></tr></thead>
+            <tbody>
+              ${rawSales.map(r => `<tr><td>${r.branch}</td><td>${r.cat}</td><td class="is-num">${r.amt}</td></tr>`).join('')}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    `;
+  }
+
+  function setVizRefType(t) { vizState.refType = t; renderViz(); }
+  function setVizRefTarget(k) { vizState.refTarget = k; renderViz(); }
+  function setVizLogic(k, v) { if (k === 'op') vizState.logicOp = v; else vizState[k] = Number(v); renderViz(); }
+  function setVizVl(k, v) {
+    if (k === 'mode') { vizState.vlMode = v; vizState.vlVal = v === 'exact' ? 'P03' : '74'; }
+    else vizState.vlVal = v;
+    renderViz();
+  }
+  function setVizCond(k, v) { if (k === 'mode') vizState.cfMode = v; else vizState.cfCrit = v; renderViz(); }
+  function setVizPivot(k, v) { if (k === 'row') vizState.pvRow = v; else vizState.pvAgg = v; renderViz(); }
+
+  /* ---------------- SPRINT ARCADE GAME (SALTED HASH — ZERO PLAINTEXT ANSWERS) ---------------- */
+  const sprint = {
+    running: false, timer: null, spawnTimer: null,
+    speed: 1.0, topic: '全部',
+    score: 0, combo: 0, lives: 3,
+    active: [] // { uid, lane, y, card }
+  };
+
+  function initSprintView() {
+    const tiers = ['全部', ...Array.from(new Set(SPRINT_CARDS.map(c => c.tier)))];
+    document.getElementById('sprint-topics').innerHTML = tiers.map(t =>
+      `<button class="btn btn-sm ${sprint.topic === t ? 'btn-copper' : ''}" onclick="APP.setSprintTopic('${esc(t)}')">${esc(t)}</button>`
+    ).join('');
+    document.getElementById('sprint-best').textContent = state.sprintBest;
+  }
+
+  function setSprintTopic(t) { sprint.topic = t; initSprintView(); }
+  function setSprintSpeed(s, btn) {
+    sprint.speed = s;
+    document.querySelectorAll('.spd-btn').forEach(b => b.classList.remove('btn-primary'));
+    if (btn) btn.classList.add('btn-primary');
+  }
+
+  function startSprint() {
+    stopSprint();
+    sprint.running = true;
+    sprint.score = 0;
+    sprint.combo = 0;
+    sprint.lives = 3;
+    sprint.active = [];
+    updateSprintHud();
+    spawnSprintCard();
+    sprint.spawnTimer = setInterval(spawnSprintCard, Math.round(3300 / sprint.speed));
+    sprint.timer = setInterval(tickSprint, 50);
+    const inp = document.getElementById('sprint-inp');
+    inp.value = '';
+    inp.focus();
+  }
+
+  function stopSprint() {
+    sprint.running = false;
+    clearInterval(sprint.timer);
+    clearInterval(sprint.spawnTimer);
+    sprint.active = [];
+    renderSprintLanes();
+  }
+
+  function spawnSprintCard() {
+    if (!sprint.running || sprint.active.length >= 4) return;
+    const pool = sprint.topic === '全部' ? SPRINT_CARDS : SPRINT_CARDS.filter(c => c.tier === sprint.topic);
+    const card = pool[Math.floor(Math.random() * pool.length)];
+    const freeLanes = [0, 1, 2].filter(l => !sprint.active.some(a => a.lane === l && a.y < 110));
+    if (!freeLanes.length) return;
+    const lane = freeLanes[Math.floor(Math.random() * freeLanes.length)];
+    sprint.active.push({ uid: Math.random().toString(36).slice(2), lane, y: -10, card });
+  }
+
+  function tickSprint() {
+    if (!sprint.running) return;
+    const dy = 0.85 * sprint.speed;
+    for (let i = sprint.active.length - 1; i >= 0; i--) {
+      sprint.active[i].y += dy;
+      if (sprint.active[i].y >= 295) {
+        sprint.active.splice(i, 1);
+        sprint.lives--;
+        sprint.combo = 0;
+        if (sprint.lives <= 0) {
+          endSprint();
+          return;
+        }
+      }
+    }
+    updateSprintHud();
+    renderSprintLanes();
+  }
+
+  function endSprint() {
+    const finalScore = sprint.score;
+    stopSprint();
+    if (finalScore > state.sprintBest) {
+      state.sprintBest = finalScore;
+      saveLocal();
+      if (state.user && state.cfg.gasUrl) callGasPost({ action: 'sync_progress', solved: Array.from(state.solved) });
+    }
+    document.getElementById('sprint-best').textContent = state.sprintBest;
+    showToast(`遊戲結束！本次得分：${finalScore} 分（最高紀錄：${state.sprintBest}）`);
+  }
+
+  function updateSprintHud() {
+    document.getElementById('sprint-score').textContent = sprint.score;
+    document.getElementById('sprint-combo').textContent = 'x' + (1 + Math.floor(sprint.combo / 3));
+    document.getElementById('sprint-lives').textContent = '♦'.repeat(Math.max(0, sprint.lives));
+  }
+
+  function renderSprintLanes() {
+    for (let l = 0; l < 3; l++) {
+      const el = document.getElementById('sprint-lane-' + l);
+      if (!el) continue;
+      el.innerHTML = sprint.active.filter(a => a.lane === l).map(a => `
+        <div class="sprint-card ${a.y > 215 ? 'danger' : ''}" style="top:${Math.round(a.y)}px">
+          <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--amber-400)">
+            <span>${esc(a.card.tier)}</span><span>${esc(a.card.q)}</span>
+          </div>
+          <pre>${esc(a.card.code)}</pre>
+        </div>
+      `).join('');
+    }
+  }
+
+  function checkSprintInput() {
+    if (!sprint.running) return;
+    const inp = document.getElementById('sprint-inp');
+    const val = inp.value.trim();
+    if (!val) return;
+    const h = fnv1aHash(val);
+    const idx = sprint.active.findIndex(a => a.card.h === h);
+    if (idx !== -1) {
+      sprint.active.splice(idx, 1);
+      sprint.combo++;
+      sprint.score += 10 * (1 + Math.floor(sprint.combo / 3));
+      inp.value = '';
+      updateSprintHud();
+      renderSprintLanes();
+    } else {
+      inp.style.borderColor = 'var(--rust-400)';
+      setTimeout(() => { inp.style.borderColor = ''; }, 280);
+    }
+  }
+
+  /* ---------------- FREE EXCEL SANDBOX ---------------- */
+  const SANDBOX_PRESETS = {
+    grades: {
+      c: 6, r: 8, w: { A: 84, B: 68, C: 68, D: 76, E: 76, F: 80 },
+      st: { A1: 'hdr', B1: 'hdr', C1: 'hdr', D1: 'hdr', E1: 'hdr', F1: 'hdr', A7: 'tot' },
+      cells: {
+        A1: '學生', B1: '卷一', C1: '卷二', D1: '總分', E1: '平均分', F1: '評級',
+        A2: '陳大文', B2: 78, C2: 84, D2: '=B2+C2', E2: '=AVERAGE(B2:C2)', F2: '=IF(E2>=80,"優異","良好")',
+        A3: '李小芳', B3: 62, C3: 58, D3: '=B3+C3', E3: '=AVERAGE(B3:C3)', F3: '=IF(E3>=80,"優異","良好")',
+        A4: '張志明', B4: 91, C4: 88, D4: '=B4+C4', E4: '=AVERAGE(B4:C4)', F4: '=IF(E4>=80,"優異","良好")',
+        A5: '黃嘉欣', B5: 45, C5: 52, D5: '=B5+C5', E5: '=AVERAGE(B5:C5)', F5: '=IF(E5>=80,"優異","良好")',
+        A7: '班級平均', B7: '=AVERAGE(B2:B5)', C7: '=AVERAGE(C2:C5)', D7: '=AVERAGE(D2:D5)'
+      },
+      fmts: { E2: '0.0', E3: '0.0', E4: '0.0', E5: '0.0', B7: '0.0', C7: '0.0', D7: '0.0' }
+    },
+    vlookup: {
+      c: 7, r: 7, w: { A: 72, B: 82, C: 66, D: 80, E: 30, F: 68, G: 76 },
+      st: { A1: 'hdr', B1: 'hdr', C1: 'hdr', D1: 'hdr', F1: 'hdr', G1: 'hdr' },
+      cells: {
+        A1: '貨品編號', B1: '單價($)', C1: '數量', D1: '總額($)', F1: '編號', G1: '價目($)',
+        A2: 'A02', B2: '=VLOOKUP(A2,$F$2:$G$5,2,FALSE)', C2: 3, D2: '=B2*C2', F2: 'A01', G2: 45,
+        A3: 'A04', B3: '=VLOOKUP(A3,$F$2:$G$5,2,FALSE)', C3: 2, D3: '=B3*C3', F3: 'A02', G3: 120,
+        A4: 'A01', B4: '=VLOOKUP(A4,$F$2:$G$5,2,FALSE)', C4: 5, D4: '=B4*C4', F4: 'A03', G4: 85,
+        F5: 'A04', G5: 260
+      },
+      fmts: { B2: '$', B3: '$', B4: '$', D2: '$', D3: '$', D4: '$' }
+    },
+    blank: { c: 7, r: 10, w: {}, st: {}, cells: {}, fmts: {} }
+  };
+
+  let sandboxSheet = null;
+  function initSandbox(presetKey) {
+    const key = presetKey || (sandboxSheet ? null : 'grades');
+    if (key) {
+      sandboxSheet = new XL.Sheet(SANDBOX_PRESETS[key]);
+      mountExcelGrid(document.getElementById('sandbox-grid-host'), {
+        sheet: sandboxSheet,
+        targetCell: 'A1',
+        blockPaste: false
+      });
+    }
+  }
+
+  function exportSandboxCsv() {
+    if (!sandboxSheet) return;
+    const rows = [];
+    for (let r = 0; r < sandboxSheet.r; r++) {
+      const row = [];
+      for (let c = 0; c < sandboxSheet.c; c++) {
+        const v = sandboxSheet.display(XL.key(c, r), false);
+        row.push('"' + String(v).replace(/"/g, '""') + '"');
+      }
+      rows.push(row.join(','));
+    }
+    const blob = new Blob(['\uFEFF' + rows.join('\n')], { type: 'text/csv;charset=utf-8' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'hkdse_excel_sandbox.csv';
+    a.click();
+  }
+
+  /* ---------------- BOOTSTRAP ---------------- */
+  function boot() {
+    loadLocal();
+    updateHeader();
+    renderHome();
+    document.getElementById('sprint-inp').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') { e.preventDefault(); checkSprintInput(); }
+    });
+    // Auto-open login modal immediately if not signed in
+    if (!state.user) {
+      setTimeout(openLoginModal, 180);
+    } else {
+      pullCloudProgress();
+    }
+  }
+
+  window.addEventListener('DOMContentLoaded', boot);
+
+  return {
+    switchView, onBrandClick, openLoginModal, closeLoginModal, manualEmailLogin, signOut,
+    openTeacherModal, saveTeacherCfg,
+    openChapter, toggleChapter, selectLevel, stepLevel, pickQuestMc, showQuestHint, submitQuest, renderQuest,
+    revealCloudSolution,
+    setDseFilter, selectDse, pickDseMc, submitDse, renderDse,
+    setVizMode, setVizRefType, setVizRefTarget, setVizLogic, setVizVl, setVizCond, setVizPivot,
+    setSprintTopic, setSprintSpeed, startSprint, stopSprint, checkSprintInput,
+    initSandbox, exportSandboxCsv
+  };
+})();
+
+  </script>
+</body>
+</html>
