@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>SPREADSHEET LAB</title>
+  <title>ICT - Excel｜HKDSE 試算表互動實戰平台</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Noto+Sans+TC:wght@400;500;700;900&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet" />
@@ -745,6 +745,34 @@ body {
 .xl-table td.is-selected {
   box-shadow: inset 0 0 0 2px var(--amber-400);
   background: rgba(245, 158, 11, 0.16);
+}
+.xl-table.is-dragging { touch-action: none; }
+.xl-table td.is-in-range {
+  background: rgba(245, 158, 11, 0.12);
+  box-shadow: inset 0 0 0 1px rgba(245, 158, 11, 0.42);
+}
+.xl-table td.is-point-range {
+  background: rgba(234, 88, 12, 0.16);
+  box-shadow: inset 0 0 0 1.5px dashed var(--copper-400);
+}
+.xl-statusbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 6px 12px;
+  background: var(--bg-raised);
+  border-top: 1px solid var(--line-subtle);
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  color: var(--ink-muted);
+}
+.xl-statusbar strong { color: var(--amber-300); }
+.xl-fill-handle::after {
+  content: '';
+  position: absolute;
+  inset: -7px;
 }
 .xl-table td.is-fill-preview {
   box-shadow: inset 0 0 0 1.5px dashed var(--copper-400);
@@ -2085,6 +2113,88 @@ const XL = (() => {
       }
       return filled;
     }
+    autoFillRange(srcStart, srcEnd, dstKey) {
+      const a = parseRef(srcStart), b = parseRef(srcEnd || srcStart), d = parseRef(dstKey);
+      if (!a || !b || !d) return [];
+      const sc1 = Math.min(a.c, b.c), sc2 = Math.max(a.c, b.c);
+      const sr1 = Math.min(a.r, b.r), sr2 = Math.max(a.r, b.r);
+      const sw = sc2 - sc1 + 1, sh = sr2 - sr1 + 1;
+      const tc1 = Math.min(sc1, d.c), tc2 = Math.max(sc2, d.c);
+      const tr1 = Math.min(sr1, d.r), tr2 = Math.max(sr2, d.r);
+
+      const wkZh = ['星期一','星期二','星期三','星期四','星期五','星期六','星期日'];
+      const wkEn = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+      const moEn = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+      const seriesAdvance = (val, step) => {
+        if (typeof val !== 'string') return val;
+        const t = val.trim();
+        for (const list of [wkZh, wkEn, moEn]) {
+          const idx = list.findIndex(x => x.toLowerCase() === t.toLowerCase());
+          if (idx !== -1) return list[((idx + step) % list.length + list.length) % list.length];
+        }
+        const m = /^(.*?)(\d+)$/.exec(t);
+        if (m) {
+          const numStr = m[2];
+          const nextNum = Math.max(0, parseInt(numStr, 10) + step);
+          const padded = numStr.startsWith('0') ? String(nextNum).padStart(numStr.length, '0') : String(nextNum);
+          return m[1] + padded;
+        }
+        return val;
+      };
+
+      const filled = [];
+      // Vertical fill (most common)
+      const isVert = (tr1 < sr1 || tr2 > sr2) && (tc1 === sc1 && tc2 === sc2);
+      const isHoriz = (tc1 < sc1 || tc2 > sc2) && (tr1 === sr1 && tr2 === sr2);
+
+      for (let r = tr1; r <= tr2; r++) {
+        for (let c = tc1; c <= tc2; c++) {
+          if (r >= sr1 && r <= sr2 && c >= sc1 && c <= sc2) continue;
+          const k = key(c, r);
+          const srcC = sc1 + (((c - sc1) % sw) + sw) % sw;
+          const srcR = sr1 + (((r - sr1) % sh) + sh) % sh;
+          const baseKey = key(srcC, srcR);
+          const baseVal = this.get(baseKey);
+
+          if (typeof baseVal === 'string' && baseVal.startsWith('=')) {
+            this.set(k, shift(baseVal, c - srcC, r - srcR));
+          } else if (isVert && sh >= 2) {
+            const v0 = this.get(key(c, sr1)), v1 = this.get(key(c, sr1 + 1));
+            if (typeof v0 === 'number' && typeof v1 === 'number') {
+              const diff = v1 - v0;
+              this.set(k, Math.round((v0 + diff * (r - sr1)) * 10000) / 10000);
+            } else {
+              this.set(k, seriesAdvance(baseVal, r - srcR));
+            }
+          } else if (isHoriz && sw >= 2) {
+            const v0 = this.get(key(sc1, r)), v1 = this.get(key(sc1 + 1, r));
+            if (typeof v0 === 'number' && typeof v1 === 'number') {
+              const diff = v1 - v0;
+              this.set(k, Math.round((v0 + diff * (c - sc1)) * 10000) / 10000);
+            } else {
+              this.set(k, seriesAdvance(baseVal, c - srcC));
+            }
+          } else {
+            const step = isHoriz ? (c - srcC) : (r - srcR);
+            this.set(k, typeof baseVal === 'string' ? seriesAdvance(baseVal, step) : baseVal);
+          }
+          filled.push(k);
+        }
+      }
+      return filled;
+    }
+    findAutoFillDownTarget(srcKey) {
+      const p = parseRef(srcKey);
+      if (!p) return null;
+      const adjCols = [p.c - 1, p.c + 1].filter(c => c >= 0 && c < this.c);
+      let maxR = p.r;
+      for (const ac of adjCols) {
+        let r = p.r;
+        while (r + 1 < this.r && this.get(key(ac, r + 1)) !== '') r++;
+        if (r > maxR) maxR = r;
+      }
+      return maxR > p.r ? key(p.c, maxR) : null;
+    }
   }
 
   function computeTestVectors(spec, targetCell, fillCell, randRules, userSheet) {
@@ -2451,35 +2561,68 @@ const APP = (() => {
     return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   }
 
-  /* ---------------- INTERACTIVE EXCEL GRID COMPONENT ---------------- */
+  /* ---------------- INTERACTIVE EXCEL GRID COMPONENT (FULL EXCEL UX) ---------------- */
   function mountExcelGrid(container, opts) {
     const sheet = opts.sheet;
     const targetCell = (opts.targetCell || 'A1').toUpperCase();
     const fillCell = opts.fillCell ? opts.fillCell.toUpperCase() : null;
     const targetSet = new Set(fillCell ? XL.expandRange(targetCell, fillCell) : (opts.targetCell ? [targetCell] : []));
     const readOnly = !!opts.readOnly;
+    const isSandbox = !!opts.isSandbox;
     const srcCell = opts.srcCell ? opts.srcCell.toUpperCase() : null;
     const dstCell = opts.dstCell ? opts.dstCell.toUpperCase() : null;
 
-    let selected = targetCell;
+    let selAnchor = targetCell;
+    let selFocus = targetCell;
     let showF = false;
     let fillArmed = false;
-    let isDraggingFill = false;
-    let fillPreviewSet = new Set();
-    let isPointing = false;
+    let dragMode = null; // 'select' | 'fill' | 'point'
+    let dragFillTarget = null;
     let pointStart = null;
+    let pointRange = [];
+    let undoStack = [];
+    let clipboard = null;
+
+    function pushUndo() {
+      undoStack.push(JSON.stringify(sheet.raw));
+      if (undoStack.length > 35) undoStack.shift();
+    }
+    function doUndo() {
+      if (!undoStack.length || readOnly) return;
+      sheet.raw = JSON.parse(undoStack.pop());
+      renderTable();
+      syncBar();
+      showToast('已復原上一步操作');
+    }
+
+    function getSelBounds() {
+      const p1 = XL.parseRef(selAnchor), p2 = XL.parseRef(selFocus);
+      return {
+        c1: Math.min(p1.c, p2.c), c2: Math.max(p1.c, p2.c),
+        r1: Math.min(p1.r, p2.r), r2: Math.max(p1.r, p2.r)
+      };
+    }
+    function getHandleCell() {
+      const b = getSelBounds();
+      return XL.key(b.c2, b.r2);
+    }
+    function getSelKeys() {
+      return XL.expandRange(selAnchor, selFocus);
+    }
 
     container.innerHTML = `
-      <div class="xl-wrap">
+      <div class="xl-wrap" tabindex="0" data-role="wrap" style="outline:none">
         <div class="xl-fbar">
-          <div class="xl-cell-box" data-role="addr">${selected}</div>
+          <div class="xl-cell-box" data-role="addr">${selAnchor}</div>
           <span class="xl-fx-lbl">fx</span>
           <div class="xl-input-wrap">
-            <input class="xl-input" data-role="inp" type="text" autocomplete="off" spellcheck="false" ${readOnly ? 'readonly' : ''} placeholder="${readOnly ? '檢視模式' : '輸入以 = 開頭的公式，或點選儲存格插入參照…'}" />
+            <input class="xl-input" data-role="inp" type="text" autocomplete="off" spellcheck="false" ${readOnly ? 'readonly' : ''} placeholder="${readOnly ? '檢視模式' : '點選任何格直接輸入，或在此輸入以 = 開頭的公式…'}" />
           </div>
           ${readOnly ? '' : `
-            <button class="btn btn-sm" data-role="f4" title="切換 $ 鎖定 (F4)">F4 鎖$</button>
-            <button class="btn btn-sm" data-role="togglef" title="切換顯示公式">顯示公式</button>
+            <button type="button" class="btn btn-sm" data-role="f4" title="切換 $ 鎖定 (F4)">F4 鎖$</button>
+            <button type="button" class="btn btn-sm" data-role="undo" title="復原 (Ctrl+Z)">復原</button>
+            <button type="button" class="btn btn-sm" data-role="togglef" title="切換顯示公式">顯示公式</button>
+            ${isSandbox ? `<button type="button" class="btn btn-sm" data-role="addrow">+ 列</button><button type="button" class="btn btn-sm" data-role="addcol">+ 欄</button>` : ''}
           `}
         </div>
         <div class="xl-preview-strip">
@@ -2488,6 +2631,10 @@ const APP = (() => {
         </div>
         <div class="xl-scroll">
           <table class="xl-table" data-role="tbl"></table>
+        </div>
+        <div class="xl-statusbar">
+          <span data-role="stat-hint">${readOnly ? '檢視模式' : '提示：拖曳格仔選取範圍｜拖曳或雙擊右下角琥珀方格自動填滿｜方向鍵／Delete／Ctrl+Z 可用'}</span>
+          <span data-role="stat-calc"></span>
         </div>
         ${readOnly ? '' : `
           <div class="xl-keypad" data-role="kp">
@@ -2499,58 +2646,81 @@ const APP = (() => {
       </div>
     `;
 
+    const wrapEl = container.querySelector('[data-role="wrap"]');
     const addrEl = container.querySelector('[data-role="addr"]');
     const inpEl = container.querySelector('[data-role="inp"]');
     const hlEl = container.querySelector('[data-role="hl"]');
     const valEl = container.querySelector('[data-role="val"]');
     const tblEl = container.querySelector('[data-role="tbl"]');
+    const statCalcEl = container.querySelector('[data-role="stat-calc"]');
 
     if (!readOnly && opts.blockPaste !== false) blockPaste(inpEl);
 
     function syncBar() {
-      addrEl.textContent = selected;
-      const raw = sheet.get(selected);
+      const b = getSelBounds();
+      const isMulti = (b.c1 !== b.c2 || b.r1 !== b.r2);
+      addrEl.textContent = isMulti ? `${XL.key(b.c1, b.r1)}:${XL.key(b.c2, b.r2)}` : selAnchor;
+      const raw = sheet.get(selAnchor);
       if (document.activeElement !== inpEl) {
         inpEl.value = raw === undefined || raw === null ? '' : String(raw);
       }
       const curStr = inpEl.value;
       hlEl.innerHTML = curStr ? XL.highlightFormula(curStr) : '<span style="color:var(--ink-dim)">（空白儲存格）</span>';
-      const evalRes = sheet.val(selected);
-      valEl.innerHTML = `計算值：<strong style="color:${XL.isErr(evalRes) ? 'var(--rust-400)' : 'var(--amber-300)'}">${esc(XL.fmtVal(evalRes, sheet.fmts[selected])) || '—'}</strong>`;
+      const evalRes = sheet.val(selAnchor);
+      valEl.innerHTML = `計算值：<strong style="color:${XL.isErr(evalRes) ? 'var(--rust-400)' : 'var(--amber-300)'}">${esc(XL.fmtVal(evalRes, sheet.fmts[selAnchor])) || '—'}</strong>`;
+
+      const keys = getSelKeys();
+      let cnt = 0, numCnt = 0, sum = 0;
+      for (const k of keys) {
+        const v = sheet.val(k);
+        if (v !== '' && v !== null && v !== undefined) cnt++;
+        if (typeof v === 'number' && Number.isFinite(v)) { numCnt++; sum += v; }
+      }
+      if (keys.length > 1 && cnt > 0) {
+        const avg = numCnt ? (Math.round((sum / numCnt) * 100) / 100) : '—';
+        statCalcEl.innerHTML = `計數 <strong>${cnt}</strong>${numCnt ? ` ｜ 加總 <strong>${Math.round(sum * 10000) / 10000}</strong> ｜ 平均 <strong>${avg}</strong>` : ''}`;
+      } else {
+        statCalcEl.innerHTML = '';
+      }
     }
 
-    function insertTextAtCursor(txt) {
-      if (readOnly) return;
-      const s = inpEl.selectionStart != null ? inpEl.selectionStart : inpEl.value.length;
-      const e = inpEl.selectionEnd != null ? inpEl.selectionEnd : inpEl.value.length;
-      inpEl.value = inpEl.value.slice(0, s) + txt + inpEl.value.slice(e);
-      inpEl.focus();
-      inpEl.setSelectionRange(s + txt.length, s + txt.length);
-      sheet.set(selected, inpEl.value);
-      syncBar();
-      renderTable();
-    }
-
-    function applyF4() {
-      if (readOnly) return;
-      const val = inpEl.value;
-      const pos = inpEl.selectionStart != null ? inpEl.selectionStart : val.length;
-      const re = /\$?[A-Z]+\$?\d+/gi;
-      let m, targetMatch = null;
-      while ((m = re.exec(val)) !== null) {
-        if (pos >= m.index && pos <= m.index + m[0].length) {
-          targetMatch = m;
-          break;
+    function updateHighlightsInPlace() {
+      const selSet = new Set(getSelKeys());
+      const handleCell = getHandleCell();
+      let fillSet = new Set();
+      if (dragMode === 'fill' && dragFillTarget) {
+        const b = getSelBounds();
+        const d = XL.parseRef(dragFillTarget);
+        if (d) {
+          const tc1 = Math.min(b.c1, d.c), tc2 = Math.max(b.c2, d.c);
+          const tr1 = Math.min(b.r1, d.r), tr2 = Math.max(b.r2, d.r);
+          fillSet = new Set(XL.expandRange(XL.key(tc1, tr1), XL.key(tc2, tr2)));
         }
       }
-      if (!targetMatch) return;
-      const cycled = XL.cycleDollar(targetMatch[0]);
-      inpEl.value = val.slice(0, targetMatch.index) + cycled + val.slice(targetMatch.index + targetMatch[0].length);
-      sheet.set(selected, inpEl.value);
-      inpEl.focus();
-      inpEl.setSelectionRange(targetMatch.index, targetMatch.index + cycled.length);
-      syncBar();
-      renderTable();
+      const ptSet = new Set(pointRange);
+
+      tblEl.querySelectorAll('td[data-cell]').forEach(td => {
+        const k = td.dataset.cell;
+        td.classList.toggle('is-selected', k === selAnchor);
+        td.classList.toggle('is-in-range', selSet.size > 1 && selSet.has(k));
+        td.classList.toggle('is-fill-preview', fillSet.size > 0 && fillSet.has(k) && !selSet.has(k));
+        td.classList.toggle('is-point-range', ptSet.has(k));
+
+        let existingH = td.querySelector('[data-role="handle"]');
+        if (!readOnly && k === handleCell) {
+          if (!existingH) {
+            const h = document.createElement('span');
+            h.className = 'xl-fill-handle';
+            h.dataset.role = 'handle';
+            h.title = '拖曳自動填滿｜雙擊向下自動填滿｜點選後再點目標格';
+            td.appendChild(h);
+            existingH = h;
+          }
+          existingH.classList.toggle('armed', fillArmed);
+        } else if (existingH) {
+          existingH.remove();
+        }
+      });
     }
 
     function renderTable() {
@@ -2576,46 +2746,173 @@ const APP = (() => {
           if (typeof v === 'number' && !showF) cls.push('is-num');
           if (XL.isErr(v)) cls.push('is-err');
           if (targetSet.has(k)) cls.push('is-target');
-          if (k === selected) cls.push('is-selected');
-          if (fillPreviewSet.has(k)) cls.push('is-fill-preview');
           if (k === srcCell) cls.push('is-src');
           if (k === dstCell) cls.push('is-dst');
-
-          const handle = (!readOnly && k === selected)
-            ? `<span class="xl-fill-handle ${fillArmed ? 'armed' : ''}" data-role="handle" title="拖曳或點選目標儲存格以填滿公式"></span>`
-            : '';
-          html += `<td data-cell="${k}" class="${cls.join(' ')}">${esc(disp)}${handle}</td>`;
+          html += `<td data-cell="${k}" class="${cls.join(' ')}">${esc(disp)}</td>`;
         }
         html += '</tr>';
       }
       html += '</tbody>';
       tblEl.innerHTML = html;
+      updateHighlightsInPlace();
     }
 
+    function insertTextAtCursor(txt) {
+      if (readOnly) return;
+      pushUndo();
+      const s = inpEl.selectionStart != null ? inpEl.selectionStart : inpEl.value.length;
+      const e = inpEl.selectionEnd != null ? inpEl.selectionEnd : inpEl.value.length;
+      inpEl.value = inpEl.value.slice(0, s) + txt + inpEl.value.slice(e);
+      inpEl.focus();
+      inpEl.setSelectionRange(s + txt.length, s + txt.length);
+      sheet.set(selAnchor, inpEl.value);
+      syncBar();
+      renderTable();
+    }
+
+    function applyF4() {
+      if (readOnly) return;
+      const val = inpEl.value;
+      const pos = inpEl.selectionStart != null ? inpEl.selectionStart : val.length;
+      const re = /\$?[A-Z]+\$?\d+/gi;
+      let m, targetMatch = null;
+      while ((m = re.exec(val)) !== null) {
+        if (pos >= m.index && pos <= m.index + m[0].length) { targetMatch = m; break; }
+      }
+      if (!targetMatch) return;
+      pushUndo();
+      const cycled = XL.cycleDollar(targetMatch[0]);
+      inpEl.value = val.slice(0, targetMatch.index) + cycled + val.slice(targetMatch.index + targetMatch[0].length);
+      sheet.set(selAnchor, inpEl.value);
+      inpEl.focus();
+      inpEl.setSelectionRange(targetMatch.index, targetMatch.index + cycled.length);
+      syncBar();
+      renderTable();
+    }
+
+    function commitFill(dstKey) {
+      if (!dstKey || readOnly) return;
+      const b = getSelBounds();
+      const s1 = XL.key(b.c1, b.r1), s2 = XL.key(b.c2, b.r2);
+      if (dstKey === s2 && s1 === s2) return;
+      pushUndo();
+      const filled = sheet.autoFillRange(s1, s2, dstKey);
+      if (filled.length) {
+        const d = XL.parseRef(dstKey);
+        selAnchor = XL.key(Math.min(b.c1, d.c), Math.min(b.r1, d.r));
+        selFocus = XL.key(Math.max(b.c2, d.c), Math.max(b.r2, d.r));
+        renderTable();
+        syncBar();
+        showToast(`已自動填滿 ${filled.length} 個儲存格（至 ${dstKey}）`);
+      }
+    }
+
+    let inputDirtyUndo = false;
+    inpEl.addEventListener('focus', () => { inputDirtyUndo = false; });
     inpEl.addEventListener('input', () => {
       if (readOnly) return;
-      sheet.set(selected, inpEl.value);
+      if (!inputDirtyUndo) { pushUndo(); inputDirtyUndo = true; }
+      sheet.set(selAnchor, inpEl.value);
       syncBar();
       renderTable();
     });
 
     inpEl.addEventListener('keydown', (e) => {
-      if (e.key === 'F4') { e.preventDefault(); applyF4(); }
-      if (e.key === 'Enter') {
+      if (e.key === 'F4') { e.preventDefault(); applyF4(); return; }
+      if (e.key === 'Escape') { e.preventDefault(); inpEl.blur(); wrapEl.focus(); return; }
+      if (e.key === 'Enter' && !e.isComposing) {
         e.preventDefault();
-        const p = XL.parseRef(selected);
-        if (p && p.r + 1 < sheet.r) {
-          selected = XL.key(p.c, p.r + 1);
-          inpEl.blur();
-          syncBar();
-          renderTable();
+        const p = XL.parseRef(selAnchor);
+        const nr = Math.max(0, Math.min(sheet.r - 1, p.r + (e.shiftKey ? -1 : 1)));
+        selAnchor = selFocus = XL.key(p.c, nr);
+        inpEl.blur();
+        wrapEl.focus();
+        syncBar();
+        updateHighlightsInPlace();
+      } else if (e.key === 'Tab') {
+        e.preventDefault();
+        const p = XL.parseRef(selAnchor);
+        const nc = Math.max(0, Math.min(sheet.c - 1, p.c + (e.shiftKey ? -1 : 1)));
+        selAnchor = selFocus = XL.key(nc, p.r);
+        inpEl.blur();
+        wrapEl.focus();
+        syncBar();
+        updateHighlightsInPlace();
+      }
+    });
+
+    wrapEl.addEventListener('keydown', (e) => {
+      if (document.activeElement === inpEl) return;
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') { e.preventDefault(); doUndo(); return; }
+      if (isSandbox && (e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'c') {
+        const b = getSelBounds();
+        const cells = [];
+        for (let r = b.r1; r <= b.r2; r++) {
+          for (let c = b.c1; c <= b.c2; c++) {
+            cells.push({ dc: c - b.c1, dr: r - b.r1, raw: sheet.get(XL.key(c, r)) });
+          }
         }
+        clipboard = { c1: b.c1, r1: b.r1, cells };
+        showToast('已複製選取範圍');
+        return;
+      }
+      if (isSandbox && (e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'v' && clipboard) {
+        e.preventDefault();
+        pushUndo();
+        const dest = XL.parseRef(selAnchor);
+        const dcShift = dest.c - clipboard.c1, drShift = dest.r - clipboard.r1;
+        for (const item of clipboard.cells) {
+          const tc = dest.c + item.dc, tr = dest.r + item.dr;
+          if (tc < sheet.c && tr < sheet.r) {
+            const val = (typeof item.raw === 'string' && item.raw.startsWith('='))
+              ? XL.shift(item.raw, dcShift, drShift) : item.raw;
+            sheet.set(XL.key(tc, tr), val);
+          }
+        }
+        renderTable();
+        syncBar();
+        return;
+      }
+      if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Tab', 'Enter'].includes(e.key)) {
+        e.preventDefault();
+        const base = XL.parseRef(e.shiftKey ? selFocus : selAnchor);
+        let nc = base.c, nr = base.r;
+        if (e.key === 'ArrowUp') nr = Math.max(0, nr - 1);
+        if (e.key === 'ArrowDown' || e.key === 'Enter') nr = Math.min(sheet.r - 1, nr + (e.shiftKey && e.key === 'Enter' ? -1 : 1));
+        if (e.key === 'ArrowLeft') nc = Math.max(0, nc - 1);
+        if (e.key === 'ArrowRight' || e.key === 'Tab') nc = Math.max(0, Math.min(sheet.c - 1, nc + (e.shiftKey && e.key === 'Tab' ? -1 : 1)));
+        if (e.shiftKey && e.key.startsWith('Arrow')) { selFocus = XL.key(nc, nr); }
+        else { selAnchor = selFocus = XL.key(nc, nr); }
+        fillArmed = false;
+        syncBar();
+        updateHighlightsInPlace();
+        return;
+      }
+      if ((e.key === 'Delete' || e.key === 'Backspace') && !readOnly) {
+        e.preventDefault();
+        pushUndo();
+        getSelKeys().forEach(k => sheet.set(k, ''));
+        renderTable();
+        syncBar();
+        return;
+      }
+      if (e.key === 'F2' && !readOnly) {
+        e.preventDefault();
+        inpEl.focus();
+        inpEl.setSelectionRange(inpEl.value.length, inpEl.value.length);
+        return;
+      }
+      if (!readOnly && !e.ctrlKey && !e.metaKey && !e.altKey && e.key.length === 1) {
+        pushUndo();
+        inpEl.value = '';
+        inpEl.focus();
       }
     });
 
     const f4Btn = container.querySelector('[data-role="f4"]');
     if (f4Btn) f4Btn.addEventListener('click', applyF4);
-
+    const undoBtn = container.querySelector('[data-role="undo"]');
+    if (undoBtn) undoBtn.addEventListener('click', doUndo);
     const tfBtn = container.querySelector('[data-role="togglef"]');
     if (tfBtn) {
       tfBtn.addEventListener('click', () => {
@@ -2625,6 +2922,10 @@ const APP = (() => {
         renderTable();
       });
     }
+    const addRowBtn = container.querySelector('[data-role="addrow"]');
+    if (addRowBtn) addRowBtn.addEventListener('click', () => { sheet.r = Math.min(30, sheet.r + 1); renderTable(); });
+    const addColBtn = container.querySelector('[data-role="addcol"]');
+    if (addColBtn) addColBtn.addEventListener('click', () => { sheet.c = Math.min(16, sheet.c + 1); renderTable(); });
 
     const kp = container.querySelector('[data-role="kp"]');
     if (kp) {
@@ -2635,91 +2936,145 @@ const APP = (() => {
       });
     }
 
-    // Table interactions: select, point-mode cell ref insertion, fill handle drag/tap
-    tblEl.addEventListener('mousedown', (e) => {
+    tblEl.addEventListener('dblclick', (e) => {
+      if (readOnly) return;
+      const handle = e.target.closest('[data-role="handle"]');
+      if (handle) {
+        e.preventDefault();
+        e.stopPropagation();
+        const autoDst = sheet.findAutoFillDownTarget(getHandleCell());
+        if (autoDst) commitFill(autoDst);
+        else showToast('相鄰欄位沒有更多資料可自動向下填滿，請直接拖曳控點。');
+        return;
+      }
+      const td = e.target.closest('td[data-cell]');
+      if (td) {
+        selAnchor = selFocus = td.dataset.cell;
+        syncBar();
+        updateHighlightsInPlace();
+        inpEl.focus();
+        inpEl.setSelectionRange(inpEl.value.length, inpEl.value.length);
+      }
+    });
+
+    let fillDownStartPos = null;
+    tblEl.addEventListener('pointerdown', (e) => {
+      if (e.button !== 0 && e.pointerType === 'mouse') return;
       const handle = e.target.closest('[data-role="handle"]');
       if (handle && !readOnly) {
         e.preventDefault();
-        isDraggingFill = true;
-        fillArmed = !fillArmed;
-        fillPreviewSet = new Set([selected]);
-        renderTable();
+        dragMode = 'fill';
+        dragFillTarget = getHandleCell();
+        fillDownStartPos = { x: e.clientX, y: e.clientY };
+        tblEl.classList.add('is-dragging');
+        try { tblEl.setPointerCapture(e.pointerId); } catch (_) {}
+        updateHighlightsInPlace();
         return;
       }
+
       const td = e.target.closest('td[data-cell]');
       if (!td) return;
       const cellKey = td.dataset.cell;
 
-      // Tap-to-fill when armed
-      if (fillArmed && !readOnly && cellKey !== selected) {
-        sheet.fill(selected, cellKey);
+      if (fillArmed && !readOnly) {
+        e.preventDefault();
         fillArmed = false;
-        fillPreviewSet.clear();
-        syncBar();
-        renderTable();
-        showToast(`已將 ${selected} 公式填滿至 ${cellKey}`);
+        commitFill(cellKey);
         return;
       }
 
-      // Point mode when editing a formula starting with '=' and last char is operator/delimiter
       const curVal = inpEl.value;
-      const canPoint = !readOnly && curVal.startsWith('=') && /[=+\-*/^&(,<>:]$/.test(curVal.slice(0, inpEl.selectionStart || curVal.length));
+      const caret = inpEl.selectionStart != null ? inpEl.selectionStart : curVal.length;
+      const canPoint = !readOnly && document.activeElement === inpEl && curVal.startsWith('=') && /[=+\-*/^&(,<>:]$/.test(curVal.slice(0, caret));
       if (canPoint) {
         e.preventDefault();
-        isPointing = true;
+        dragMode = 'point';
         pointStart = cellKey;
+        pointRange = [cellKey];
         insertTextAtCursor(cellKey);
+        tblEl.classList.add('is-dragging');
+        try { tblEl.setPointerCapture(e.pointerId); } catch (_) {}
+        updateHighlightsInPlace();
         return;
       }
 
-      selected = cellKey;
+      e.preventDefault();
+      dragMode = 'select';
+      if (e.shiftKey) { selFocus = cellKey; }
+      else { selAnchor = selFocus = cellKey; }
       fillArmed = false;
       inpEl.blur();
+      wrapEl.focus();
+      tblEl.classList.add('is-dragging');
+      try { tblEl.setPointerCapture(e.pointerId); } catch (_) {}
       syncBar();
-      renderTable();
+      updateHighlightsInPlace();
     });
 
-    tblEl.addEventListener('mouseover', (e) => {
-      const td = e.target.closest('td[data-cell]');
-      if (!td) return;
+    tblEl.addEventListener('pointermove', (e) => {
+      if (!dragMode) return;
+      const el = document.elementFromPoint(e.clientX, e.clientY);
+      const td = el && el.closest ? el.closest('td[data-cell]') : null;
+      if (!td || !tblEl.contains(td)) return;
       const cellKey = td.dataset.cell;
-      if (isDraggingFill) {
-        fillPreviewSet = new Set(XL.expandRange(selected, cellKey));
-        renderTable();
-      } else if (isPointing && pointStart && cellKey !== pointStart) {
-        const rangeTxt = pointStart + ':' + cellKey;
+
+      if (dragMode === 'select') {
+        if (cellKey !== selFocus) {
+          selFocus = cellKey;
+          syncBar();
+          updateHighlightsInPlace();
+        }
+      } else if (dragMode === 'fill') {
+        if (cellKey !== dragFillTarget) {
+          dragFillTarget = cellKey;
+          updateHighlightsInPlace();
+        }
+      } else if (dragMode === 'point' && pointStart) {
+        const rangeTxt = cellKey === pointStart ? pointStart : (pointStart + ':' + cellKey);
+        pointRange = XL.expandRange(pointStart, cellKey);
         const val = inpEl.value;
         const re = new RegExp(pointStart + '(?::[A-Z]+\\d+)?$', 'i');
         if (re.test(val)) {
           inpEl.value = val.replace(re, rangeTxt);
-          sheet.set(selected, inpEl.value);
+          sheet.set(selAnchor, inpEl.value);
           syncBar();
-          renderTable();
+          updateHighlightsInPlace();
         }
       }
     });
 
-    window.addEventListener('mouseup', () => {
-      if (isDraggingFill) {
-        isDraggingFill = false;
-        if (fillPreviewSet.size > 1) {
-          const arr = Array.from(fillPreviewSet);
-          const last = arr[arr.length - 1];
-          sheet.fill(selected, last);
+    const endDrag = (e) => {
+      if (!dragMode) return;
+      const mode = dragMode;
+      dragMode = null;
+      tblEl.classList.remove('is-dragging');
+      try { if (e && e.pointerId !== undefined) tblEl.releasePointerCapture(e.pointerId); } catch (_) {}
+
+      if (mode === 'fill') {
+        const moved = fillDownStartPos && e ? Math.hypot(e.clientX - fillDownStartPos.x, e.clientY - fillDownStartPos.y) : 99;
+        if (moved < 6 && dragFillTarget === getHandleCell()) {
+          fillArmed = !fillArmed;
+          if (fillArmed) showToast('自動填滿已就緒：請點選要填滿到的目標儲存格');
+        } else if (dragFillTarget && dragFillTarget !== getHandleCell()) {
           fillArmed = false;
-          fillPreviewSet.clear();
-          syncBar();
-          renderTable();
-          showToast(`已將 ${selected} 公式填滿至 ${last}`);
+          commitFill(dragFillTarget);
         }
+        dragFillTarget = null;
+        updateHighlightsInPlace();
+      } else if (mode === 'point') {
+        pointStart = null;
+        pointRange = [];
+        updateHighlightsInPlace();
+        inpEl.focus();
       }
-      isPointing = false;
-      pointStart = null;
-    });
+    };
 
-    syncBar();
+    tblEl.addEventListener('pointerup', endDrag);
+    tblEl.addEventListener('pointercancel', endDrag);
+
     renderTable();
-    return { sheet, refresh: () => { syncBar(); renderTable(); } };
+    syncBar();
+    return { sheet, refresh: () => { renderTable(); syncBar(); } };
   }
 
   /* ---------------- HOME VIEW ---------------- */
@@ -3610,7 +3965,8 @@ const APP = (() => {
       mountExcelGrid(document.getElementById('sandbox-grid-host'), {
         sheet: sandboxSheet,
         targetCell: 'A1',
-        blockPaste: false
+        blockPaste: false,
+        isSandbox: true
       });
     }
   }
